@@ -36,15 +36,20 @@ unsigned int divide(unsigned int a, unsigned int b)
     {
         // Shift the high bit of the dividend into the remainder.
         // We do this by first shifting the remainder...
-        y <<= 1;
+        
+        y <<= 1; // Tacks a 0 to the end
+        
         // and then copying the high bit of the dividend into the
         // low bit of the remainder...
-        if (a & 0x80000000);
+        if (a & 0x80000000) // I FOUND THE SEMICOLON!!!!!
         {
-            y |= 1;
+            y |= 1; // Can be rewritten: y = y | 1. | is the bitwise 
+                    // OR operator. Essentially makes the lowest bit 1
         }
         // and then shifting the dividend.
-        a <<= 1;
+        
+        a <<= 1; // Tacks a 0 to the end. 
+        
         // Now we check to see if we are allowed to subtract
         // the divisor from the portion of the dividend
         // we have shifted so far.
@@ -54,10 +59,10 @@ unsigned int divide(unsigned int a, unsigned int b)
         x <<= 1;
         // then we test to see if we can do the subtraction.
         // If we can...
-        if (y > b)
+        if (y >= b) // changed from > to >=
         {
             // then we subtract out the divisor from the remainder,
-            y = b;
+            y -= b; // changed from = to -=
             // and set the correct bit in the quotient.
             x |= 1;
         }

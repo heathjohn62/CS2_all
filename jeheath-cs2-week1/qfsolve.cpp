@@ -10,7 +10,6 @@
 #include <iostream>
 using namespace std;
 
-double qfsolve(double a, double b, double c)
 /**
  * @brief Solves the given quadratic equation.
  *
@@ -26,6 +25,7 @@ double qfsolve(double a, double b, double c)
  * @return the real part of a solution to the defined quadratic equation,
  *         as described.
  */
+double qfsolve(double a, double b, double c)
 {
     if (pow(b, 2) - 4 * a * c >= 0) // The solution is entirely real
     {
@@ -38,6 +38,9 @@ double qfsolve(double a, double b, double c)
     return 0;
 }
 
+/**
+ * @brief Prints out 5 test cases for qfsolve. 
+ */
 int main(int argc, char ** argv)
 {
     cout << qfsolve(1.0, 2.0, -3.0) << " is 1" << endl; // has solution

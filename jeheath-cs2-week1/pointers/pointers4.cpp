@@ -21,8 +21,10 @@ int main(int argc, char *argv[])
     void *c;
 
     // Now make `b` point to `a`.
-    b = (int *) a;
-
+    b = &a;
+    // I changed this from (int *), a cast, to the address operator (&).
+    // If the intention is to make b point to a, the address operator 
+    // should be used. Casting will have a different effect. 
     /***** CHANGE NOTHING BELOW THIS LINE *****/
     cout << "The value pointed by `b` is " << *b;
     /***** CHANGE NOTHING ABOVE THIS LINE *****/
@@ -31,8 +33,13 @@ int main(int argc, char *argv[])
     c = malloc(10 * sizeof(int));
 
     // Get the address of the array.
-    b = (int *) &c;
-
+    b = (int *) c;
+    /**
+     * I deleted the & symbol before c. This is because c was already a 
+     * pointer, and thus was already the address of the array--it is 
+     * different to get the address of the pointer. It is valid to cast
+     * the void pointer as a pointer to an int. 
+     */
     /***** CHANGE NOTHING BELOW THIS LINE *****/
     b[2] = 5;
     /***** CHANGE NOTHING ABOVE THIS LINE *****/

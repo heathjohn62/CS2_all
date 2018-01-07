@@ -26,7 +26,11 @@ int main(int argc, char *argv[])
     b = a;
 
     free(a);
-    free(b);
+    /**
+     * I removed the statement free(b) because the memory that b points 
+     * to is already freed after the statement free(A). Since a and b 
+     * point to the same memory, this memory only needs to be freed once.
+     */
 
     return 0;
 }

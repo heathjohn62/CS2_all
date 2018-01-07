@@ -17,8 +17,7 @@ using namespace std;
  */
 int main(int argc, char *argv[])
 {
-    /* TODO: Put your declarations here.
-     * Variable `a` is of type `int`. Only use one line! */
+    int a, * b, c, ** d;
 
     /***** CHANGE NOTHING BELOW THIS LINE *****/
     a = 5;
@@ -26,6 +25,5 @@ int main(int argc, char *argv[])
     c = *b;
     d = &b;
     /***** CHANGE NOTHING ABOVE THIS LINE *****/
-
     return 0;
 }

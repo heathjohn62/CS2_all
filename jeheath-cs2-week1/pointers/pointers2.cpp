@@ -17,8 +17,14 @@ using namespace std;
  */
 int main(int argc, char *argv[])
 {
-    int *a;
+    int *a = nullptr;
     time_t t = time(nullptr); // Get the current Unix timestamp
+    /**
+     * I initialized a as a null pointer, rather than not initializing it.
+     * Later, when we check if(a), it is assumed that a will be null if it
+     * wasn't changed in the earlier if statement--but this is only true
+     * if a is initialized as null. 
+     */
 
     /***** CHANGE NOTHING BELOW THIS LINE *****/
     if (t % 2)

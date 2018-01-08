@@ -13,6 +13,11 @@
 
 using namespace std;
 
+/**
+ * @brief The game class provides the setup through which one can play 
+ * sudoku. Objects of this class own a game grid, and remember the moves
+ * the user has played. 
+ */
 class Game
 {
 private:

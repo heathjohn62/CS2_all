@@ -60,7 +60,7 @@ bool Game::getMove()
     int len = (int) move_str.length(); // len is the length of the input
     if (len == 0)
     {
-        throw "There was no input!";
+        throw "ERROR. There was no input!";
     }
     
     string valid ("123456789"); // A string containing every valid input
@@ -73,11 +73,11 @@ bool Game::getMove()
     if (move_str[index] == 'q')
     {
         cout << "You have decided to quit" << endl;
-        return 1; // This denotes game-over to the rest of the program
+        return true; // This denotes game-over to the rest of the program
     }
     else if (index == len - 1)
     {
-        throw "There was insufficient input!";
+        throw "ERROR. There was insufficient input!";
         // This error will result from the user only inputting a single
         // letter (other than q), or just whitespace
     }
@@ -104,7 +104,7 @@ bool Game::getMove()
             }
             else
             {
-                throw "That move has insufficient or invalid characters.";
+                throw "ERROR. That move has insufficient or invalid characters.";
             }
         }
         // I now have to check that there is no more user input. 
@@ -118,18 +118,21 @@ bool Game::getMove()
             }
             if (!isspace(move_str[index]))
             {
-                throw "You entered too many values";
+                throw "ERROR. You entered too many values";
             }
         }
         
         // Now to check if the move even works on the board!
         
-        if (grid.checkValid((int) full_move[0], (int) full_move[1], 
+        if (grid.checkValid((int) (full_move[0] - '0'), 
+                            (int) (full_move[1] - '0'),
                             full_move[2]))
         {
             // The move is valid!!
-            grid.writeNum((int) full_move[0], (int) full_move[1], 
-                        full_move[2]);
+            grid.writeNum((int) (full_move[0] - '0'), 
+                          (int) (full_move[1] - '0'),
+                          (char) full_move[2]);
+            
                         
             char * move = new char[2]; // Each successful move will be
                                        // stored permanently, and deleted
@@ -137,12 +140,11 @@ bool Game::getMove()
             move[0] = full_move[0];
             move[1] = full_move[1];
             moves.push_front(move); // adds move to the list of moves
-            cout << "Successful Move" << endl;
-            return 0; // indicates successful move
+            return false; // indicates successful move
         }
         else
         {
-            throw "That move is not valid due to the rules of sudoku.";
+            throw "ERROR. That move is not valid due to the rules of sudoku.";
         }
     }
     else if (move_str[index] == 'u') // The user wants to undo a move!
@@ -151,9 +153,9 @@ bool Game::getMove()
     }
     else 
     {
-        throw "Your command did not begin with a valid character.";
+        throw "ERROR. Your command did not begin with a valid character.";
     }
-    return 0;
+    return false;
 }
 
 
@@ -188,7 +190,7 @@ int Game::undo(int index, string move_str, int len)
         }
         else
         {
-            throw "That move has insufficient or invalid characters.";
+            throw "ERROR. That move has insufficient or invalid characters.";
         }
     }
     // I now have to check that there is no more user input. 
@@ -202,7 +204,7 @@ int Game::undo(int index, string move_str, int len)
         }
         if (!isspace(move_str[index]))
         {
-            throw "You entered too many values";
+            throw "ERROR. You entered too many values";
         }
     }
     // Now I will check if undo_move is within moves.
@@ -219,13 +221,16 @@ int Game::undo(int index, string move_str, int len)
     if (true_undo)
     {
         char space = ' ';
-        grid.writeNum((int) undo_move[0], (int) undo_move[1], space);
+        grid.writeNum((int) (undo_move[0] - '0'),
+                      (int) (undo_move[1] - '0'),
+                      space);
+                      
         cout<< "Successful undo" << endl;
         return 0;
     }
     else
     {
-        throw "The space you entered cannot be removed";
+        throw "ERROR. The space you entered cannot be removed";
     }
 }
 
@@ -238,9 +243,12 @@ int Game::undo(int index, string move_str, int len)
  */
 void Game::Run()
 {
+    string junk;
+    getline(cin, junk); // Prevents the filename from being interpreted 
+                        // as a move.
     grid.displayGrid(); 
-    int x = 0;
-    while (x == 0)
+    bool x = false;
+    while (!x)
     {
         if (grid.isComplete()) // Checks if the user has won
         {
@@ -250,14 +258,17 @@ void Game::Run()
         try
         {
             x = getMove();
-            grid.displayGrid();
+            if (!x)
+            {
+                grid.displayGrid();
+            }
         }
         catch (const char* msg) // Error handling done here
         {
             cout << msg << endl;
         }
     }
-    return; // The game has ended
+    // The game has ended
 }
 
 
@@ -267,10 +278,13 @@ void Game::Run()
  */
 void Game::wipe_moves()
 {
-    for (char * m : moves)
-        {
-            delete[] m;
-        }
+    char * m;
+    while (!moves.empty())
+    {
+        m = moves.front();
+        moves.pop_front();
+        delete[] m;
+    }
 }
 
 

@@ -11,10 +11,17 @@
 
 using namespace std;
 
+/**
+ * @brief The Grid class provides the mechanics for loading, displaying, and 
+ * otherwise working with the actual sudoku board. The board can be checked
+ * and altered using methods of this class only. 
+ * 
+ * Each Grid object represents a different sudoku board. 
+ */
 class Grid
 {
 private:
-    int grid[9][9];
+    char grid_arr[9][9];
 public:
     Grid();
     Grid(string filename);

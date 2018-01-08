@@ -2,8 +2,10 @@
  * @author John Heath
  * @date 1.7.18
  * CS2 Assignment 1 Part 3
+ * 
+ * Note: I used cplusplus.com extensively to look up the mechanics of 
+ * string/file processing in c++, throughout part 3 of this assignment. 
  */
-#include "sudoku.hpp"
 #include "grid.hpp"
 #include "game.hpp"
 #include <string>
@@ -11,14 +13,43 @@
 
 using namespace std;
 
+
+/**
+ * @brief Main method of the sudoku program. Prompts for a board to 
+ * load, and starts the game with that board. Will print an error and
+ * prompt again if a faulty file is given. 
+ * 
+ * @return Returns 0 given succesful completion. 
+ */
 int main()
 {
-    //ask for filename
-    string filename = "";
-    //state instructions
-    Game g = Game(filename);
-    g.Run();
-    //say thanks, 
-    g.wipe_moves();
+    cout << "What is the name of the file you would like to load? " 
+         << "('q' to quit)" << endl;
+    string filename;
+    cin >> filename;
+    try
+    {
+        Game g = Game(filename);
+        cout << "Use 'd x y value' to place a move. Use 'u x y' to undo a "
+         << "bad move. Use 'q' to quit" << endl;
+        g.Run();
+        cout << "Thank you for playing!" << endl; 
+        g.wipe_moves();
+        exit(0); // program ran into segmentation errors if just returning
+    }
+    catch (const char* msg)
+    {
+        if (filename.length() == 1 && filename[0] == 'q') 
+        {
+            cout << "You have decided to quit. " << endl;
+            exit(0);
+        }
+        else
+        {
+            cout << msg << endl;
+            main();
+            exit(0);
+        }
+    }
     return 0;
 }

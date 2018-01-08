@@ -6,14 +6,19 @@
 #include "sudoku.hpp"
 #include "grid.hpp"
 #include "game.hpp"
+#include <string>
+#include <iostream>
 
 using namespace std;
 
 int main()
 {
     //ask for filename
+    string filename = "";
     //state instructions
-    //create game
-    //call run
-    //if run returns 1, say thanks, wipe moves, and destroy the game. 
+    Game g = Game(filename);
+    g.Run();
+    //say thanks, 
+    g.wipe_moves();
+    return 0;
 }

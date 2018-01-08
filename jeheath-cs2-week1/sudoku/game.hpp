@@ -9,6 +9,7 @@
 #include <forward_list>
 #include <string>
 #include <iostream>
+#include "grid.hpp"
 
 using namespace std;
 
@@ -20,11 +21,10 @@ private:
 public:
     Game();
     Game(string filename);
-    void getMove();
-    void removeMove(char *);
-    bool inMoves(char *);
+    bool getMove();
     void Run();
     void wipe_moves();
+    int undo(int index, string move_str, int len);
 };
 
 #endif /* game_hpp */

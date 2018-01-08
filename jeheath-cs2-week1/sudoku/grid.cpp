@@ -18,7 +18,7 @@ Grid::Grid()
 {
     for(int i = 0; i < 9; i++)
     {
-        for int j = 0; j < 9; j++)
+        for (int j = 0; j < 9; j++)
         {
             grid[i][j] = '0'; 
         }
@@ -52,7 +52,8 @@ bool Grid::isComplete()
 
 bool Grid::checkValid(int x, int y, char val)
 {
-    return false;
+    // ensure that I check to see if the spot is filled too
+    return true;
 }
 
 /**
@@ -68,8 +69,7 @@ void Grid::writeNum(int x, int y, char val)
  */
 void Grid::undoNum(int x, int y)
 {
-    //check that the move is actually in moves
-    //remember to delete the move from the heap. 
+     
 }
 
 /**

@@ -22,7 +22,6 @@ public:
     bool isComplete();
     bool checkValid(int x, int y, char val);
     void writeNum(int x, int y, char val);
-    void undoNum(int x, int y);
     void displayGrid();
 };
 

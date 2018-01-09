@@ -117,7 +117,6 @@ bool Grid::checkValid(int x, int y, char val)
     char space = ' ';
     if (grid_arr[x-1][y-1] != space)
     {
-        cout << "Space Taken" << endl;
         return false; // That space is taken by another number!
     }
     
@@ -127,7 +126,6 @@ bool Grid::checkValid(int x, int y, char val)
     {
         if (grid_arr[row][i] == val)
         {
-            cout << "ROW" << endl;
             return false; // The number suggested was found in the 
                           // same row!
         }
@@ -139,7 +137,6 @@ bool Grid::checkValid(int x, int y, char val)
     {
         if (grid_arr[i][col] == val)
         {
-            cout << "col" << endl;
             return false; // The number suggested was found in the 
                           // same column!
         }
@@ -171,7 +168,6 @@ bool Grid::checkValid(int x, int y, char val)
         {
             if (grid_arr[row_1 + i][col_1 + j] == val)
             {
-                cout << "box" << endl;
                 return false; // The number suggested was found in the 
                               // same box!
             }

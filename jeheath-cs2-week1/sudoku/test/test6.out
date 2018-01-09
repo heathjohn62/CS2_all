@@ -13,7 +13,6 @@ Use 'd x y value' to place a move. Use 'u x y' to undo a bad move. Use 'q' to qu
 |     4 |   9   |   1   |
 |     7 | 1     | 9   5 |
 -------------------------
-Enter your move: col
-ERROR. That move is not valid due to the rules of sudoku.
+Enter your move: ERROR. That move is not valid due to the rules of sudoku.
 Enter your move: You have decided to quit
 Thank you for playing!

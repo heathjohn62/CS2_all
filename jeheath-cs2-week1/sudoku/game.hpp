@@ -21,7 +21,7 @@ using namespace std;
 class Game
 {
 private:
-    forward_list<char *> moves;
+    forward_list<string> moves;
     Grid grid;
 public:
     Game();
@@ -29,7 +29,6 @@ public:
     ~Game();
     bool getMove();
     void Run();
-    void wipe_moves();
     int undo(int index, string move_str, int len);
 };
 

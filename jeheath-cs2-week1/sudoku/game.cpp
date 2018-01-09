@@ -133,12 +133,7 @@ bool Game::getMove()
                           (int) (full_move[1] - '0'),
                           (char) full_move[2]);
             
-                        
-            char * move = new char[2]; // Each successful move will be
-                                       // stored permanently, and deleted
-                                       // upon game-over
-            move[0] = full_move[0];
-            move[1] = full_move[1];
+            string move = {full_move[0], full_move[1]};
             moves.push_front(move); // adds move to the list of moves
             return false; // indicates successful move
         }
@@ -174,7 +169,7 @@ bool Game::getMove()
 int Game::undo(int index, string move_str, int len)
 {
     string valid ("123456789"); // A string containing every valid input
-    char undo_move[2] = {'0', '0'};
+    string undo_move = {'0', '0'};
     for (int i = 0; i < 2; i++) // two values must be extracted 
     {
         index++;
@@ -209,13 +204,11 @@ int Game::undo(int index, string move_str, int len)
     }
     // Now I will check if undo_move is within moves.
     bool true_undo = false;
-    for (char * m : moves)
+    for (string m : moves)
     {
-        if (*m == undo_move[0] && *(m + 1) == undo_move[1])
+        if (m[0] == undo_move[0] && m[1] == undo_move[1])
         {
             true_undo = true;
-            moves.remove(m);
-            delete[] m;
         }
     }
     if (true_undo)
@@ -224,6 +217,7 @@ int Game::undo(int index, string move_str, int len)
         grid.writeNum((int) (undo_move[0] - '0'),
                       (int) (undo_move[1] - '0'),
                       space);
+        moves.remove(undo_move);
         return 0;
     }
     else
@@ -277,12 +271,9 @@ void Game::Run()
 Game::~Game()
 {
     // deletes moves
-    char * m;
     while (!moves.empty())
     {
-        m = moves.front();
         moves.pop_front();
-        delete[] m;
     }
 }
 

@@ -3,8 +3,15 @@
  * @date 1.7.18
  * CS2 Assignment 1 Part 3
  * 
- * Note: I used cplusplus.com extensively to look up the mechanics of 
- * string/file processing in c++, throughout part 3 of this assignment. 
+ * 
+ * I use a recursive algorithm to solve each sudoku puzzle. Essentially,
+ * the program will make a valid guess on each square, and try to figure out
+ * the remainder of the puzzle assuming it is right, and it will change 
+ * it's guess if none of the combinations work. 
+ * 
+ * This uses exponential time, but since there are a limited number of 
+ * valid guesses that can be made on a sudoku board, the program runs 
+ * fairly fast. A 100x100 sudoku board would take a very, very long time. 
  */
 #include "grid.hpp"
 #include "game.hpp"

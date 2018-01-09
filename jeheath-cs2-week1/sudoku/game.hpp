@@ -26,6 +26,7 @@ private:
 public:
     Game();
     Game(string filename);
+    ~Game();
     bool getMove();
     void Run();
     void wipe_moves();

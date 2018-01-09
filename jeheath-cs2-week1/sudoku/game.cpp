@@ -224,8 +224,6 @@ int Game::undo(int index, string move_str, int len)
         grid.writeNum((int) (undo_move[0] - '0'),
                       (int) (undo_move[1] - '0'),
                       space);
-                      
-        cout<< "Successful undo" << endl;
         return 0;
     }
     else
@@ -273,11 +271,12 @@ void Game::Run()
 
 
 /**
- * @brief This function is called at game over, and deletes the individual
- * moves that were stored in the heap. 
+ * @brief This is the deconstructor for grid. It deallocates the memory 
+ * used to hold the instance variables of the class. 
  */
-void Game::wipe_moves()
+Game::~Game()
 {
+    // deletes moves
     char * m;
     while (!moves.empty())
     {

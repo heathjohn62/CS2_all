@@ -34,21 +34,21 @@ int main()
          << "bad move. Use 'q' to quit" << endl;
         g.Run();
         cout << "Thank you for playing!" << endl; 
-        g.wipe_moves();
-        exit(0); // program ran into segmentation errors if just returning
+        g.~Game();
+        return 0;
     }
     catch (const char* msg)
     {
         if (filename.length() == 1 && filename[0] == 'q') 
         {
             cout << "You have decided to quit. " << endl;
-            exit(0);
+            return 0;
         }
         else
         {
             cout << msg << endl;
             main();
-            exit(0);
+            return 0;
         }
     }
     return 0;

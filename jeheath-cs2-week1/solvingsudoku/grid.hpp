@@ -30,7 +30,7 @@ public:
     bool checkValid(int x, int y, char val);
     void writeNum(int x, int y, char val);
     void displayGrid();
-    char is_space(int x, int y);
+    bool is_space(int x, int y);
 };
 
 

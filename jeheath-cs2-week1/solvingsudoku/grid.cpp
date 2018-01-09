@@ -15,6 +15,8 @@ const string __VALID__ = "123456789";
 /**
  * @brief Empty constructor for the Grid class. Initializes the grid 
  * with zeros.
+ * 
+ * This is not used in the program's current implementation
  */
 Grid::Grid()
 {
@@ -29,6 +31,7 @@ Grid::Grid()
 /**
  * @brief Main constructor for the Grid class. Initializes the grid by 
  * calling loadboard on the specified filename. 
+ * 
  * @param filename the filename of the board to be loaded onto grid. 
  */
 Grid::Grid(string filename)
@@ -219,7 +222,15 @@ void Grid::displayGrid()
     cout << "-------------------------" << endl;
 }
 
-char Grid::is_space(int x, int y)
+/**
+ * @brief This is a simple accessor method to determine whether the 
+ * location given is a space or a real character. 
+ * 
+ * @param x the row
+ * @param y the column
+ * @return Returns 1 if a space is found, and 0 otherwise. 
+ */
+bool Grid::is_space(int x, int y)
 {
     char space = ' ';
     return grid_arr[x -1][y - 1] == space;

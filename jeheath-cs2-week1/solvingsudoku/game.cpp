@@ -103,6 +103,7 @@ void Game::recursive_solve(int cell_num)
     }
     int col = cell_num % 9;
     int row = cell_num / 9;
+    
     char val;
     while (!grid.is_space(row + 1, col + 1))
     {
@@ -112,16 +113,23 @@ void Game::recursive_solve(int cell_num)
     }
     for (int i = 1; i <= 9; i++)
     {
-        val = nums[i-1];
+        val = nums[i-1]; // This is our guess.
         if (grid.checkValid(row + 1, col + 1, val))
         {
             move({(char) (row + 1 + '0'), (char) (col + 1 + '0'), val});
-            
-            recursive_solve(cell_num + 1);
+            // This was done on one line to minimize the memory stored
+            // in this recursive loop. it is essentially the same as:
+            // move( row, col, value )
+            // This move is a guess: 
+            recursive_solve(cell_num + 1); // We call the function again
+                                           // Until we are proven right,
+                                           // or the guess is proven wrong.
             if (grid.isComplete())
             {
-                return;
+                return; // winning case
             }
+            // If we are here in the function, we made an incorrect guess.
+            // This undoes the mistake, and we will try again!
             undo ({(char) (row + 1 + '0'), (char) (col + 1 + '0')});
         }
     }

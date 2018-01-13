@@ -1,7 +1,20 @@
 /**
+ * This program will leak memory because the insert function creates 
+ * Node objects using the "new" keyword, thus storing them in the heap. 
+ * Subsequently, when the deconstructor is called, only the head node is
+ * deleted; all the nodes that were created via the insert function will
+ * remain in the heap at termination. 
+ * 
+ * If this program were called repeatedly by another program, eventually 
+ * the computer running the process would run out of memory, and the 
+ * program would crash. 
+ */
+
+
+/**
  * @file
- * @author The CS2 TA Team
- * @version 1.0
+ * @author The CS2 TA Team (Edited by John Heath)
+ * @version 1.1
  * @date 2013-2014
  * @copyright This code is in the public domain.
  *
@@ -62,8 +75,16 @@ List::List()
  */
 List::~List()
 {
-    // TODO: Write the destructor so that this code does not leak memory!
-    delete head;
+    Node *temp = head; // This variable will cycle through the list and
+                       // will be repeatedly deleted. 
+    Node *temp_2;
+    while(temp->next != nullptr)
+    {
+        temp_2 = temp->next;
+        delete temp;
+        temp = temp_2;
+    }
+    delete temp;
 }
 
 /**

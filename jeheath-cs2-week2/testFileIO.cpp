@@ -9,7 +9,9 @@
  */
 
 #include "fileio.hpp"
+#include <vector>
 
+using namespace std;
 /**
  * @brief Read the file input and print out its contents
  *
@@ -17,9 +19,8 @@
  */
 int main(int argc, char const *argv[])
 {
-
-    // TODO Write test code to instantiate a vector, then calls the readFile and
-    // print_vector functions to demonstrat that the file was read successfully.
-
+    vector<int> v; 
+    readFile(argv[1], v); // argv[1] is the filename
+    print_vector(v);
     return 0;
 }

@@ -9,7 +9,8 @@
  */
 
 #include "fileio.hpp"
-
+#include <fstream>
+using namespace std;
 /**
  * @brief Reads the integers in file and fills nums with these integers.
  *
@@ -19,8 +20,17 @@
  * Notice that the vector is passed by reference, so you should fill the vector
  * and not return anything from this function.
  */
-void readFile(char const *file, std::vector<int> &nums)
+void readFile(char const *file, vector<int> &nums)
 {
-    // TODO Write a function which takes a filename and a vector of integers as
-    // arguments and filles the vector with integers from the specified file.
+    ifstream ifs; // This is an input file stream
+    ifs.open(file, ifstream::in);
+    int num;
+    ifs >> num; // read the first number
+    while(ifs.good()) // ifs.good() will be false if I have tried to 
+                      // read a nonexistant number
+    {
+        nums.push_back(num); // adds number to vector
+        ifs >> num;
+    }
+    ifs.close(); // Closes file
 }

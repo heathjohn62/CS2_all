@@ -38,8 +38,10 @@ std::vector<int> bubbleSort(std::vector<int> &list);
 std::vector<int> quickSort(std::vector<int> &list);
 void quicksort_inplace(std::vector<int> &list, int left, int right);
 std::vector<int> mergeSort(std::vector<int> &list);
-std::vector<int> merge(std::vector<int> &left, std::vector<int> &right);
+std::vector<int> merge(std::vector<int> left, std::vector<int> right);
 void usage();
+void swap_element(int i, int j, std::vector<int> &v);
+
 
 const char *usage_string =
 "Usage: sorter [-b] [-m] [-q] [-qi] FILE\n\

@@ -10,13 +10,62 @@
  */
 #include "structs.hpp"
 #include <vector>
+using namespace std;
 
-
-// TODO Modify one of your sorting functions (bubble sort not permitted) and
-// implement it here. Add extra arguments as needed.
-void sort(vector<Tuple*> &points, vector<double> &angles)
+/**
+ * This is a revised version of the swapping function, such that it swaps
+ * two vectors of pointers to tuples and doubles, in place. 
+ * @param i one index to be swapped
+ * @param j the second index to be swapped
+ * @param v the vector of doubles, passed by reference
+ * @param points the vector of tuples, passed by reference
+ * @returns nothing
+ */
+void swap_elements(int i, int j, vector<double> &v, vector<Tuple*> &points)
 {
-    return;
+    double temp = v[i];
+    v[i] = v[j];
+    v[j] = temp;
+    Tuple * point = points[i];
+    points[i] = points[j];
+    points[j] = point;
+}
+
+/**
+ * This is a revised in-place quicksort algorithm that sorts the pair of 
+ * vectors of angles and tuples based on angle. 
+ * @param points A vector holding pointers to points (in a tuple),
+ * to be sorted
+ * @param angles A vector holding angles as doubles, to be sorted
+ * @param left 
+ * @returns nothing
+ */
+void sort(vector<Tuple*> &points, vector<double> &angles,
+          int left, int right)
+{
+    if (right <= left)
+    {
+        return;
+    }
+    else
+    {
+        // choose pivot to be left element
+        int pivot = left;
+        for (int i = left + 1; i <= right; i++)
+        {
+            if ((angles[i]) < (angles[pivot]))
+            {
+                swap_elements(pivot, pivot + 1, angles, points);
+                pivot++;
+                if (pivot != i)
+                {
+                    swap_elements(pivot - 1, i, angles, points);
+                }
+            }
+        }
+        sort(points, angles, left, pivot - 1);  // Recursively sort 
+        sort(points, angles, pivot + 1, right); // about the pivot.
+    }
 }
 
 int main(int argc, char const *argv[])
@@ -40,7 +89,7 @@ int main(int argc, char const *argv[])
     // Now sort them with respect to angle (points[i] corresponds to angle[i])
 
     /** THIS IS THE ONLY LINE OF THE MAIN LOOP YOU NEED TO MODIFY. */
-    sort(points, angles);
+    sort(points, angles, 0, angles.size() - 1);
     /** REPLACE THE LINE ABOVE WITH A CALL TO YOUR SORTING FUNCTION. */
 
     // and print out the new points and angles

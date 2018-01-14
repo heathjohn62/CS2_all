@@ -28,4 +28,5 @@ void sort(vector<Tuple*> &points, vector<double> &angles,
 int left, int right);
 unsigned int leftmost(vector<Tuple*> points);
 int left_turn(Tuple p_1, Tuple p_2, Tuple p_3);
+unsigned int bottom(vector<Tuple*> points);
 

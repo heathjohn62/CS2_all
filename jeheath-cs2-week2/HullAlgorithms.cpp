@@ -11,20 +11,12 @@
  */
 #include "HullAlgorithms.hpp"
 
-/**
- * TO STUDENTS: In all of the following functions, feel free to change the
- * function arguments and/or write helper functions as you see fit. Remember to
- * add the function header to HullAlgorithms.hpp if you write a helper function!
- *
- * Our reference implementation has four helper functions and the function(s)
- * copied over from angleSort.cpp.
- */
 
 /**
  * This is the implementation of the gift wrap algorithm. It adds points
  * to a convex hull, given an initial set of points. 
  * 
- * @param app The complex hull application
+ * @param app The convex hull application
  * @param points A vector containing pointers to tuples that represent 
  * points in R^2. 
  * @returns nothing
@@ -99,16 +91,79 @@ void DoGiftWrap(vector<Tuple*> points, ConvexHullApp *app)
 
 
  /**
- * TODO: Implement this function.
+ * This is the implementation of the Grahm Scan algorithm. It draws
+ * a convex hull around a given set of points. 
+ * 
+ * @param points A vector holding pointers to tuples representing points
+ * in R^2
+ * @param app The convex hull application
+ * @returns nothing
+ * 
+ * Outline:
+ * Find bottom
+ * Sort angles with respect to bottom
+ * add initial 3 points to hull in order
+ * until done:
+ *      add element
+ *      check if the last three make a left turn
+ *          if so, remove the last element added and add the element
+ *          that brought about the left turn
+ * we are done when we add the last element. 
  */
 
 void DoGrahamScan(vector<Tuple*> points, ConvexHullApp *app)
 {
-    for (unsigned int i = 0; i < points.size(); ++i)
+    vector<double> angles;
+    unsigned int lowest = bottom(points); // Finds bottom point
+    for (unsigned int i = 0; i < points.size(); i++)
     {
-        app->add_to_hull(points[i]);
+        double angle = points[lowest]->angle_wrt_pt(points[i]);
+        angles.push_back(angle); // stores all angles in a vector
     }
+    // Time to sort the vectors!!
+    sort(points, angles, 0, points.size() - 1);
+    lowest = 0; // Once I sorted the list, the index of the lowest 
+                // element changed. 
+    // I will keep track of the points added to the hull
+    vector<int> in_hull;
+    // Add the point that made the greatest angle
+    app->add_to_hull(points[points.size() - 1]);
+    in_hull.push_back(points.size() - 1);
+    // Add the lowest point
     app->add_to_hull(points[0]);
+    in_hull.push_back(lowest);
+    // Add the point that made the smallest angle
+    app->add_to_hull(points[1]);
+    in_hull.push_back(1);
+    bool done = false;
+    unsigned int k = 2;
+    while (!done)
+    {
+        in_hull.push_back(k);
+        for (unsigned int i = k + 1; i < points.size(); i++)
+        {
+            // I am checking to see if a left turn is made in the last
+            // three points
+            int j = in_hull[in_hull.size() - 2];
+            int h = in_hull[in_hull.size() - 1];
+            if (left_turn(*points[j], *points[h], *points[i]) == 1)
+            {
+                in_hull.pop_back(); // Prevents the element at the joint
+                                    // of a left turn from being added
+                // We replace the last element with the element at the 
+                // end of the left turn.
+                in_hull.push_back(i); 
+                k = i;
+            }
+        }
+        // Now points that cannot make left turns will be added
+        app->add_to_hull(points[k]);
+        k += 1;
+        if (k == points.size())
+        {
+            done = true; // True if we added the element we started with
+        }
+    }
 }
 
 
@@ -161,6 +216,28 @@ unsigned int leftmost(vector<Tuple*> points)
     for (unsigned int i = 1; i < points.size(); ++i)
     {
         if (points[i]->x < points[min]->x)
+        {
+            min = i;
+        }
+    }
+    return min;
+}
+
+/**
+ * Finds and returns the index of the bottom point in the vector of 
+ * tuples it is passed. 
+ * @param points A vector of tuples that represent points in R^2
+ * @returns the unsigned integer that holds the index of the bottom 
+ * point within the vector points. 
+ * 
+ * Note: This is the bottom point in terms of how it is viewed in the gui
+ */
+unsigned int bottom(vector<Tuple*> points)
+{
+    unsigned int min = 0;
+    for (unsigned int i = 1; i < points.size(); ++i)
+    {
+        if (points[i]->y > points[min]->y)
         {
             min = i;
         }

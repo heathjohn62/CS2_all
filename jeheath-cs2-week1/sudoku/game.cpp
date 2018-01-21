@@ -20,8 +20,6 @@ using namespace std;
  */
 Game::Game()
 {
-    // The instance variable (the move list) initializes as empty, 
-    // which is desired. 
     grid = Grid();
 }
 

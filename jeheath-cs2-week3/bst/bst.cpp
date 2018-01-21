@@ -1,3 +1,16 @@
+/**
+ * This implementation of a binary search tree was defective for a few
+ * reasons. The insert function written didn't specify what to do if the
+ * root of the tree was still a null pointer, so the first node couldn't 
+ * be added. Also, there was no destructor for the tree, and all nodes 
+ * had been created with the new keyword. This was fixed by writing a simple 
+ * destructor. Finally, the find function had a really weird feature where
+ * if would add a node if it didn't find the number, and only on the left 
+ * of the parent node. That seemed like a pretty silly mistake, but I 
+ * removed it because it didn't really fit the purpose of the function. 
+ */
+
+
 #include <iostream>
 #include <stdlib.h>
 
@@ -72,7 +85,9 @@ struct Node
         {
             if(left == nullptr)
             {
-                left = new Node(val);
+               //left = new Node(val);// This seems weird. Why would a
+                                      // find function add a node to the 
+                                      // tree?
                 return false;
             }
             else
@@ -84,7 +99,7 @@ struct Node
         {
             if(right == nullptr)
             {
-                return false;
+                return false; // And the addition isn't included here!
             }
             else
             {
@@ -113,7 +128,17 @@ public:
     */
     bool insert(int val)
     {
-        return root->insert(val);
+        if (root == nullptr) // This should fix the problem
+        {
+            root = new Node(val);
+            return true;
+            // Great, this fix allows the program to run, but its still
+            // leaking memory. I probably need a destructor. 
+        }
+        else
+        {
+            return root->insert(val); // But what if root is 
+        }                             // still a null pointer?
     }
 
      /** @brief Finds an integer in this tree.
@@ -125,6 +150,47 @@ public:
     {
         return root->find(val);
     }
+    
+    /**
+     * This is a helper function for the destructor that calls itself 
+     * recursively. It will delete all nodes in a tree via a depth-first 
+     * searching method. 
+     * @returns nothing
+     */
+    void destroy(Node* n)
+    {
+        if (n == nullptr)
+        {
+            return;
+        }
+        else
+        {
+            destroy(n->left);
+            destroy(n->right);
+            delete n;
+        }
+    }
+    
+    /**
+     * This is the destructor for the binary search tree class. It
+     * essentially checks to see if the root has been initialized, and 
+     * if so, calls a function that deletes the entire tree, including 
+     * the root. 
+     */
+    ~BinarySearchTree()
+    {
+        if (root == nullptr)
+        {
+            return; // nothing needs to be deleted because 0 nodes were 
+                    // allocated
+        }
+        else
+        {
+            destroy(root); //Helper function that I can use recursively
+        }
+    }
+    
+    
 };
 
 int main(int argc, char ** argv)
@@ -163,5 +229,6 @@ int main(int argc, char ** argv)
     }
 
     cout << endl << endl << "all done" << endl << endl;
+    // Destructor is called implicitly -- Memory Errors are gone!
     return 0;
 }

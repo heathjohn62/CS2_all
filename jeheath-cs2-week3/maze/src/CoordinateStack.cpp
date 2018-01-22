@@ -71,7 +71,7 @@ CoordinateStack::CoordinateStack()
  */
 void CoordinateStack::init()
 {
-    /* TODO: Write your initialization here! */
+    top = nullptr;
 }
 
 /**
@@ -87,7 +87,10 @@ CoordinateStack::~CoordinateStack()
  */
 void CoordinateStack::deinit()
 {
-    /* TODO: Write your cleanup code here! */
+    while (top != nullptr)
+    {
+        pop(); // This function already deleted allocated memory. 
+    }
 }
 
 /**
@@ -114,7 +117,18 @@ void CoordinateStack::push(Coordinate c)
  */
 void CoordinateStack::do_push(Coordinate c)
 {
-    /* TODO: Write your push function here! */
+    stackitem * item = new stackitem;
+    item->c = c;
+    if (top == nullptr)
+    {
+        top = item;
+        item->next = nullptr;
+    }
+    else
+    {
+        item->next = top;
+        top = item;
+    }
 }
 
 /**
@@ -138,24 +152,43 @@ Coordinate CoordinateStack::pop()
 
 /**
  * @brief Do the actual pop operation (student-implemented).
- *
+ * Throws an exception if an empty stack is popped. 
  * @return The popped Coordinate.
  */
 Coordinate CoordinateStack::do_pop()
 {
-    /* TODO: Write your pop function here! */
-    return Coordinate();
+    Coordinate coord;
+    if (top == nullptr)
+    {
+        throw "ERROR. You tried to pop an empty stack";
+    }
+    else
+    {
+        coord = top->c;
+        stackitem * temp = top;
+        top = top->next;
+        delete temp;
+    }
+    return coord;
 }
 
 /**
  * @brief Returns the top item of the stack without removing it.
- *
+ * Throws an exception if an empty stack is peeked at.
  * @return The Coordinate at the top of the stack.
  */
 Coordinate CoordinateStack::peek()
 {
-    /* TODO: Write your peek function here! */
-    return Coordinate();
+    Coordinate coord;
+    if (top == nullptr)
+    {
+        throw "ERROR. You can't peek at an empty stack";
+    }
+    else
+    {
+        coord = top->c;
+    }
+    return coord;
 }
 
 /**
@@ -165,6 +198,5 @@ Coordinate CoordinateStack::peek()
  */
 bool CoordinateStack::is_empty()
 {
-    /* TODO: Is the stack empty??? */
-    return true;
+    return top == nullptr;
 }

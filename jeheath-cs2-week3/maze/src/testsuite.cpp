@@ -52,11 +52,124 @@ int main()
     Coordinate c;
     CoordinateQueue *queue = new CoordinateQueue();
     CoordinateStack *stack = new CoordinateStack();
-
-    /* TODO: Test all the things! */
-
-    delete queue;
+    cout << "First we will test the Coordinate Stack implementation" 
+         << endl;
+    try
+    {
+        stack->push(Coordinate(1,2));
+        stack->push(Coordinate(3,3));
+        cout << "Anticipated: (3, 3)    Result: ";
+        stack->peek().printCoord();
+        cout << "Anticipated: (3, 3)    Result: ";
+        stack->pop().printCoord();
+        cout << "Anticipated: (1, 2)    Result: ";
+        stack->pop().printCoord();
+        cout << "Anticipated peek error" << endl;
+        stack->peek().printCoord(); // Should print error
+    }
+    catch (const char* msg)
+    {
+        cout << msg << endl;
+    }
+    try
+    {
+        cout << "Anticipated pop error" << endl;
+        stack->pop().printCoord(); // should print error
+    }
+    catch (const char* msg)
+    {
+        cout << msg << endl;
+    }
+    
+    cout << "Expected: Empty    Actual: ";
+    if (stack->is_empty())
+    {
+        cout << "Empty" << endl;
+    }
+    else
+    {
+        cout << "Non-empty" << endl;
+    }
+    
+    stack->push(Coordinate(5,5)); 
+    // This line will let me check if the destructor is working properly
+    // If so, I should be able to end the program with a non-empty stack 
+    // and still avoid memory leaks. 
+    
+    cout << "Expected: Non-empty    Actual: ";
+    if (stack->is_empty())
+    {
+        cout << "Empty" << endl;
+    }
+    else
+    {
+        cout << "Non-empty" << endl;;
+    }
+    
     delete stack;
+    
+    cout << "Now we will test the coordinate queue implementation." 
+         << endl;
+
+    try
+    {
+        queue->enqueue(Coordinate(6,6));
+        queue->enqueue(Coordinate(7,7));
+        cout << "Expected: (6, 6)    Actual: ";
+        queue->dequeue().printCoord();
+        cout << "Expected: (7, 7)    Actual: ";
+        queue->peek().printCoord();
+        cout << "Expected: (7, 7)    Actual: ";
+        queue->dequeue().printCoord();
+        cout << "Expected peek error." << endl;
+        queue->peek().printCoord();
+    }
+    catch (const char* msg)
+    {
+        cout << msg << endl;
+    }
+    try
+    {
+        cout << "Expected dequeue error." << endl;
+        queue->dequeue().printCoord();
+    }
+    catch (const char* msg)
+    {
+        cout << msg << endl;
+    }
+    
+    cout << "Expected: Empty    Actual: ";
+    if (queue->is_empty())
+    {
+        cout << "Empty" << endl;
+    }
+    else
+    {
+        cout << "Non-empty" << endl;
+    }
+    
+    // Now to check destructor
+    queue->enqueue(Coordinate(7,6));
+    queue->enqueue(Coordinate(7,5));
+    queue->enqueue(Coordinate(7,4));
+    // Valgrind suggests the destructor is effective
+    
+    cout << "Expected: Non-empty    Actual: ";
+    if (queue->is_empty())
+    {
+        cout << "Empty" << endl;
+    }
+    else
+    {
+        cout << "Non-empty" << endl;
+    }
+    
+    delete queue;
+    
 
     return 0;
 }
+/**
+ * Tests pass. Errors are printed to the terminal when they should be, 
+ * and there are no memory leaks. 
+ */

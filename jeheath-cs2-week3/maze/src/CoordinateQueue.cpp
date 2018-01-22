@@ -72,6 +72,8 @@ CoordinateQueue::CoordinateQueue()
 void CoordinateQueue::init()
 {
    /* TODO: Write your initialization code here! */
+   front = nullptr;
+   rear = nullptr;
 }
 
 /**
@@ -87,7 +89,17 @@ CoordinateQueue::~CoordinateQueue()
  */
 void CoordinateQueue::deinit()
 {
-    /* TODO: Write your cleanup code here! */
+    // For the stack implementation, it was sufficient to just pop the 
+    // elements out. However, this is much less efficient when using the
+    // queue, because it takes linear time to pop each element. We can
+    // clear the entire list in linear time instead. 
+    queueitem * temp;
+    while (rear != nullptr)
+    {
+        temp = rear;
+        rear = rear->next;
+        delete temp;
+    }
 }
 
 /**
@@ -115,7 +127,19 @@ void CoordinateQueue::enqueue(Coordinate c)
  */
 void CoordinateQueue::do_enqueue(Coordinate c)
 {
-    /* TODO: Write your enqueue operation here! */
+    queueitem * q = new queueitem;
+    q->c = c;
+    if (front == nullptr) // Implies the list is empty
+    {
+        q->next = nullptr;
+        front = q; // This item will be both the front and the end of 
+        rear = q;  // the queue. 
+    }
+    else
+    {
+        q->next = rear;
+        rear = q;
+    }
 }
 
 /**
@@ -131,25 +155,55 @@ Coordinate CoordinateQueue::dequeue()
 
 /**
  * @brief Do the actual dequeue operation (student-implemented).
- *
+ * Throws an exception if an empty list is dequeued. 
  * @return The dequeued Coordinate.
  */
 Coordinate CoordinateQueue::do_dequeue()
 {
-    /* TODO: Write your dequeue operation here! */
-    return Coordinate();
+    if (front == nullptr)
+    {
+        throw "ERROR. There is nothing to dequeue.";
+    }
+    
+    Coordinate coord = front->c;
+    
+    if (rear->next == nullptr) // Single element queue
+    {
+        delete rear;
+        rear = nullptr;
+        front = nullptr;
+    }
+    else // multi element queue
+    {
+        queueitem * q = rear;
+        queueitem * prev_q = q;
+        // This is going to operate in linear time, but without a doubly
+        // linked list, I don't think there's a better way to do it.
+        while (q->next != nullptr)
+        {
+            prev_q = q;
+            q = q->next;
+        }
+        front = prev_q;
+        front->next = nullptr;
+        delete q; 
+    }
+    return coord;
 }
 
 /**
  * @brief Returns the item at the front of the queue without
  * removing it.
- *
+ * Throws an exception if an empty list is peeked at. 
  * @return The first Coordinate in the queue.
  */
 Coordinate CoordinateQueue::peek()
 {
-    /* TODO: Write your peek code here! */
-    return Coordinate();
+    if (front == nullptr)
+    {
+        throw "ERROR. You can't peek at an empty queue.";
+    }
+    return front->c;
 }
 
 /**
@@ -159,7 +213,6 @@ Coordinate CoordinateQueue::peek()
  */
 bool CoordinateQueue::is_empty()
 {
-    /* TODO: Is the queue empty??? */
-    return true;
+    return front == nullptr;
 }
 

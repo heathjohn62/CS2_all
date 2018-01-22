@@ -51,6 +51,8 @@
 #define MAZE_END_X      (WIDTH - 1)
 #define MAZE_END_Y      (HEIGHT - 1)
 
+#include <iostream>
+
 /**
  * @brief Encapsulates a Cartesian (x, y) coordinate.
  */
@@ -75,6 +77,12 @@ public:
         x = source.x; y = source.y;
         return *this;
     }
+    
+    void printCoord()
+    {
+        std::cout << "(" << x << ", " << y << ")" << std::endl;
+    }
+    
 };
 
 #endif

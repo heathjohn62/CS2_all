@@ -49,6 +49,7 @@
 #include <cstdlib>
 #include <vector>
 #include "common.hpp"
+#include <iostream>
 
 using namespace std;
 

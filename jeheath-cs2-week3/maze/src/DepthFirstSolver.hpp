@@ -65,6 +65,7 @@ public:
 
 private:
     class CoordinateStack *stack;
+    vector<Coordinate> list; // This will mirror the stack
     bool visited[WIDTH][HEIGHT];
 
     void init();

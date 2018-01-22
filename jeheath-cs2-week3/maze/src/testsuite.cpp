@@ -90,8 +90,10 @@ int main()
     {
         cout << "Non-empty" << endl;
     }
-    
-    stack->push(Coordinate(5,5)); 
+    for (int i = 0; i < 8000000; i++)
+    {
+        stack->push(Coordinate(5,5)); 
+    }
     // This line will let me check if the destructor is working properly
     // If so, I should be able to end the program with a non-empty stack 
     // and still avoid memory leaks. 

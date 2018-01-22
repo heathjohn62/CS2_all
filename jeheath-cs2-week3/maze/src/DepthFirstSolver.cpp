@@ -88,7 +88,7 @@ DepthFirstSolver::~DepthFirstSolver()
  */
 void DepthFirstSolver::deinit()
 {
-    
+    // I did not dynamically allocate any memory, so none needs to be freed
 }
 
 /**
@@ -106,8 +106,7 @@ void DepthFirstSolver::solve(MazeGrid *maze)
     int moves = 0;
     while(!stack->is_empty())
     {
-        position = stack->pop(); // Updates position 
-        list.pop_back();
+        position = stack->peek(); // Updates position 
         visited[position.x][position.y] = true; // Marks position as visited
         
         if (position.x == MAZE_END_X && position.y == MAZE_END_Y)
@@ -117,27 +116,32 @@ void DepthFirstSolver::solve(MazeGrid *maze)
     
         moves = maze->get_possible_moves(position.x, position.y);
         
-        // A coordinate is pushed onto the stack if it is in the avaliable
-        // moves, and it has not yet been visited. 
+        // A single coordinate is pushed onto the stack if it is in the 
+        // avaliable moves, and it has not yet been visited. 
         if ((moves & E) && !(visited[position.x + 1][position.y]))
         {
             stack->push(Coordinate(position.x + 1, position.y));
             list.push_back(Coordinate(position.x + 1, position.y));
         }
-        if ((moves & W) && !(visited[position.x - 1][position.y]))
+        else if ((moves & W) && !(visited[position.x - 1][position.y]))
         {
             stack->push(Coordinate(position.x - 1, position.y));
             list.push_back(Coordinate(position.x - 1, position.y));
         }
-        if ((moves & S) && !(visited[position.x][position.y + 1]))
+        else if ((moves & S) && !(visited[position.x][position.y + 1]))
         {
             stack->push(Coordinate(position.x, position.y + 1));
             list.push_back(Coordinate(position.x, position.y + 1));
         }
-        if ((moves & N) && !(visited[position.x][position.y - 1]))
+        else if ((moves & N) && !(visited[position.x][position.y - 1]))
         {
             stack->push(Coordinate(position.x, position.y - 1));
             list.push_back(Coordinate(position.x, position.y - 1));
+        }
+        else
+        {
+            stack->pop();
+            list.pop_back();
         }
         
     }

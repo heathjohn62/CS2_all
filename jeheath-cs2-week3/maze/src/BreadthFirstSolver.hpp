@@ -73,6 +73,7 @@ public:
 
     void solve(MazeGrid *maze);
     vector<Coordinate> get_path();
+    Coordinate position;
 
 private:
     class CoordinateQueue *queue;

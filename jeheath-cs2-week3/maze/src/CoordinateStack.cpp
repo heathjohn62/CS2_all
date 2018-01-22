@@ -89,7 +89,7 @@ void CoordinateStack::deinit()
 {
     while (top != nullptr)
     {
-        pop(); // This function already deleted allocated memory. 
+        do_pop(); // This function already deleted allocated memory. 
     }
 }
 

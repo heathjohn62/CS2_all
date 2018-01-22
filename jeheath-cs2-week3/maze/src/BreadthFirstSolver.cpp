@@ -61,7 +61,15 @@ BreadthFirstSolver::BreadthFirstSolver(class MazeSolverApp *app)
  */
 void BreadthFirstSolver::init()
 {
-    /* TODO: Write your initialization code here! */
+    position = Coordinate(MAZE_START_X, MAZE_START_Y);
+    for (unsigned int i = 0; i < WIDTH; i++)
+    {
+        for (unsigned int j = 0; j < HEIGHT; j++)
+        {
+            visited[i][j].visited = false;
+            visited[i][j].from = Coordinate(-1, -1);
+        }
+    }
 }
 
 /**
@@ -78,7 +86,7 @@ BreadthFirstSolver::~BreadthFirstSolver()
  */
 void BreadthFirstSolver::deinit()
 {
-    /* TODO: Write your cleanup code here! */
+    // I did not dynamically allocate memory, so nothing must be freed
 }
 
 /**
@@ -86,16 +94,58 @@ void BreadthFirstSolver::deinit()
  *
  * @param[in] maze MazeGrid object that stores the maze to be
  * solved.
+ * 
+Enqueue the first coordinate
+
+while queue is not empty:
+    Mark the current position as visited
+
+    if current position is end coordinate:
+        Stop the search
+    else:
+        Enqueue all available moves
  */
 void BreadthFirstSolver::solve(MazeGrid *maze)
 {
-    /* TODO: Solve the maze.
-     *
-     * You are provided a member variable `visited` that stores
-     * (bool, Coordinate) pairs describing whether a square has already
-     * been checked and the square immediately preceding it in the path.
-     * You are responsible for maintaining this array, filling it with
-     * useful information, and using it in a consistent way. */
+    queue->enqueue(position);
+    int moves = 0;
+    while (!queue->is_empty())
+    {
+        visited[position.x][position.y].visited = true;
+        
+        if (position.x == MAZE_END_X && position.y == MAZE_END_Y)
+        {
+            return; // We have found the end!!
+        }
+        
+        moves = maze->get_possible_moves(position.x, position.y);
+        // If a move is valid and hasn't been visited before, it 
+        // is added to the queue. This can result in multiple additions
+        // per loop cycle. 
+        if ((moves & E) && !(visited[position.x + 1][position.y].visited))
+        {
+            // update visited to keep track of history
+            visited[position.x + 1][position.y].from = position;
+            // add coordinate to queue
+            queue->enqueue(Coordinate(position.x + 1, position.y));
+        }
+        if ((moves & W) && !(visited[position.x - 1][position.y].visited))
+        {
+            visited[position.x - 1][position.y].from = position;
+            queue->enqueue(Coordinate(position.x - 1, position.y));
+        }
+        if ((moves & S) && !(visited[position.x][position.y + 1].visited))
+        {
+            queue->enqueue(Coordinate(position.x, position.y + 1));
+            visited[position.x][position.y + 1].from = position;
+        }
+        if ((moves & N) && !(visited[position.x][position.y - 1].visited))
+        {
+            visited[position.x][position.y - 1].from = position;
+            queue->enqueue(Coordinate(position.x, position.y - 1));
+        }
+        position = queue->dequeue();
+    }
 }
 
 /**
@@ -106,11 +156,18 @@ void BreadthFirstSolver::solve(MazeGrid *maze)
 vector<Coordinate> BreadthFirstSolver::get_path()
 {
     vector<Coordinate> list;
-
-    /* TODO: Find the current path through the maze and return it as a vector.
-     * For a BFS, this is a little tricky -- the top element in the queue
-     * only tells you the last point in the path; you need to trace back up
-     * using the `visited` member array. */
+    Coordinate pos = position;
+    bool found = false;
+    while (!found)
+    {
+        list.push_back(pos);
+        pos = visited[pos.x][pos.y].from;
+        if (pos.x == MAZE_START_X && pos.y == MAZE_START_Y)
+        {
+            found = true;
+        }
+    }
+    list.push_back(Coordinate(MAZE_START_X, MAZE_START_Y));
 
     return list;
 }

@@ -1,0 +1,57 @@
+We will have two strings that need aligning, s and t. 
+We can also create an unordered map with keys of the form "top,bottom", and
+values being the alignment score of those sequences. 
+
+First, if we have already recorded the best alignment result for the inputted string, 
+that should be returned. 
+
+Otherwise, create a default alignment object "best".
+
+If either string is empty, we will append a 't' or an 's', to the instruction string for every 
+character still left in the other string, and add the penalty for this to the alignment 
+score. Update the unordered map with the entered key and this alignment result, and 
+return the alignment result. 
+
+
+Otherwise, we want to return the alignment result with the maximum score among these
+three cases. We can save space by noting that we only need to record the score of each 
+alignment object, because the actual object will be stored in the dictionary after a 
+recursive call. 
+	
+Create an int t_blank, and add the blank penalty to it. 
+Add to t_blank the score field of the alignment result obtained from a recursive call of
+this function with arguments of s without the first character, and t. 
+	
+Create an int s_blank,  and add the blank penalty to it. 
+Add to s_blank the score field of the alignment result obtained from a recursive call of 
+this function with arguments of s, and t without the first character. 
+	
+Create an int both_chars
+If the two initial characters in s and t are equal:
+	Add the bonus to the score.  
+else:
+	Add the penalty to the score. 
+Add to both_chars the score field of the alignment result obtained from a recursive call
+of this function with arguments of s, and t each without the first character. 
+
+if blank_t is the max:
+	assign temp to the dictionary entry with the key of s without the first character, and t
+	Instruction string of best = t + temp's instruction string
+	best score  = penalty + temp score
+else if blank_s is the max: 
+	assign temp to the dictionary entry with the key of s, and t without the first character.
+	Instruction string of best = s + temp's instruction string
+	best score  = penalty + temp score
+else:
+	assign temp to the dictionary entry with the key of s and t, each without the first
+        character.
+	If the characters match:
+		Instruction string of best = | + temp's instruction string
+		best score  = bonus + temp score
+	else:
+		 Instruction string of best = * + temp's instruction string
+		 best score  = penalty + temp score
+
+Update the dictorary with the string containing the inputs, and this alignment object. 
+return "best"
+

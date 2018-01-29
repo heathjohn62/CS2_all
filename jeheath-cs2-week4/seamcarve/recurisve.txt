@@ -1,0 +1,50 @@
+1. The general problem is to compute the path with lowest net saliency: to try and do 
+this with a brute force approach for an nxm picture would take O(n*3^m), which is 
+rediculous. Dynamic programing is used in this algorithm when the most efficient way
+is calculated step at a time, and stored into the map. By storing the least salient path
+to a depth of 2, and then 3 pixels, and so on,  dynamic programming allows one to 
+avoid recalulating every possible path. Complexity becomes O(m*n). 
+
+2. I will write this is psuedocode, because this is easiest for me to think about. 
+
+main:
+define a struct  holding (a vector of pixels, the total saliency of path) called path.
+min = total saliency upper bound
+For every pixel in the first row:
+	path temp = min path to bottom (pixel)
+	if temp.saliency < min.saliency:
+		min = temp
+min will now hold the minimum saliency path in the form of a vector of pixels
+
+@param pixel to start finding a path from
+@returns vector of pixels containing least saliency path, and total saliency
+def: min path to bottom:
+	if pixel is in the last row:
+		vector v
+		v.add(pixel)
+		return (v, pixel.saliency)
+	otherwise:
+	temp = the minimum-salience element of of the min path to the bottom of 
+	each the lower left, lower, and lower right pixels. 
+	temp.v.add(pixel)
+	temp.saliency += pixel.saliency
+	return temp
+
+This ignores boundary cases, but for the purposes of showing how the algorithm 
+might work, is sufficient.
+
+3. O(N*3^N)
+
+4. There would be 50*3^50  = 3.59 * 10^25 operations if we ignore the boundary cases.
+If there were 1 billion computations per second, this gives 3.59 * 10^25 / 10^9 
+= 3.59 * 10^16 seconds. 
+
+5. O(N^2)
+
+6. Roughly 50^2 = 2500 computations. 2500/10^9 = 2.5*10^-6 seconds. 
+
+
+
+
+
+		

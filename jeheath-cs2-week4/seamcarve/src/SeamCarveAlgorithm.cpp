@@ -30,7 +30,7 @@
  *
  *
  */
-
+#include <iostream>
 #include "SeamCarveApp.hpp"
 
 #define min(x, y)           ((x) < (y) ? (x) : (y))
@@ -41,6 +41,8 @@
  *
  * @param smap 2-d saliency map with width `w` and height `h`; can be
  * indexed by `smap[i][j]`
+ * NEXT YEAR, PLEASE BE MORE EXPLICIT ABOUT WHICH DIMENSION IS WHAT
+ * 
  *
  * @param w Width of the saliency map
  *
@@ -49,18 +51,114 @@
  * @return An array of the x-coordinates of the seam, starting from the top of
  * the image.
  */
-unsigned int *DoSeamCarve(unsigned int **smap, int w, int h)
+unsigned int *DoSeamCarve(unsigned int **smap, 
+                          int w, int h)
 {
-    /* TODO: Write this function! */
-
-    unsigned int *seam = new unsigned int[h];
-
-    /* A very bad seam carving algorithm... */
+    // I'm a little wary of destroying the saliency map, so I'm going to
+    // copy it to a new array instead of changing it directly.
+    unsigned int **path = new unsigned int*[h];
     for (int i = 0; i < h; i++)
     {
-        seam[i] = 0;
+        path[i] = new unsigned int[w];
     }
+    for (int row = 0; row < h; row++)
+    {
+        for (int col = 0; col < w; col++)
+        {
+            // OK THIS TOOK ME FOREVER TO FIGURE OUT
+            // Why would you format 2D arrays in column, row format???
+            // Anyways, If I switched the row and column into path, 
+            // everything works. 
+            path[row][col] = smap[col][row]; 
+        }
+    }
+    
+    // Change the path array to have values reflect the total saliency
+    // accumulated by the lowest saliency path to that pixel. 
+    for (int row = 1; row < h; row++)
+    {
+        // left edge case
+        path[row][0] += min(path[row - 1][0], path[row - 1][1]); 
+        // main body
+        for (int col = 1; col < w - 1; col++)
+        {
+            path[row][col] += min(min(path[row - 1][col - 1], 
+                                      path[row - 1][col]), 
+                                      path[row - 1][col + 1]);
+        }
+        // right edge case
+        path[row][w - 1] += min(path[row - 1][w - 1], path[row - 1][w - 2]);
+    }
+    
+    unsigned int *seam = new unsigned int[h];
 
+    unsigned int minimum = path[h - 1][0];
+    seam[h - 1] = 0;
+    for (int col = 1; col < w; col++)
+    {
+        if (minimum > path[h - 1][col])
+        {
+            minimum = path[h - 1][col];
+            seam[h - 1] = col;
+        }
+    }
+    
+    // Starting at the min on the bottom, we will work our way up.
+    
+    for (int i = h - 2; i >= 0; i--)
+    {
+        if (seam[i + 1] == 0) // last pixel was on the left edge
+        {
+            // pixel directly above is the min
+            if (path[i][seam[i + 1]] < path[i][seam[i + 1] + 1])
+            {
+                seam[i] = seam[i + 1];
+            }
+            //pixel above and to the right is the min
+            else
+            {
+                seam[i] = seam[i + 1] + 1;
+            }
+        }
+        else if (seam[i + 1] == (unsigned int)w - 1) // last pixel on right edge
+        {
+            // pixel directly above is the min
+            if (path[i][seam[i + 1]] < path[i][seam[i + 1] - 1])
+            {
+                seam[i] = seam[i + 1];
+            }
+            //pixel above and to the left is the min
+            else
+            {
+                seam[i] = seam[i + 1] - 1;
+            }
+        }
+        else // last pixel in middle
+        {
+            // pixel directly above the last is the min
+            if (path[i][seam[i + 1]] < path[i][seam[i + 1] + 1] &&
+                path[i][seam[i + 1]] < path[i][seam[i + 1] - 1])
+            {
+                seam[i] = seam[i + 1];
+            }
+            // pixel above and to the right is the min
+            else if (path[i][seam[i + 1] + 1] < path[i][seam[i + 1] - 1])
+            {
+                seam[i] = seam[i + 1] + 1;
+            }
+            // pixel above and to the left is the min
+            else if (path[i][seam[i + 1] + 1] >= path[i][seam[i + 1] - 1])
+            {
+                seam[i] = seam[i + 1] - 1;
+            }
+        }
+    }
+    // Wipe path array, and free memory
+    for (int i = 0; i < h; i++)
+    {
+        delete[] path[i];
+    }
+    delete[] path;
     return seam;
 }
 

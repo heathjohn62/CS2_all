@@ -10,6 +10,10 @@
 #pragma once
 #include <cmath>
 #include <iostream>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
+#include <limits>
 
 using namespace std;
 
@@ -39,7 +43,15 @@ struct Node
      * @brief node id
      */
     int id;
-
+    
+    
+    /**
+     * @brief For shortest path computation. Stores the distance from each
+     * 		  node to the start node at each point in computation
+     */
+    double distance_to_start;
+    
+    
     /**
      * @brief Initializes the struct
      *
@@ -51,7 +63,11 @@ struct Node
         : x(x_)
         , y(y_)
         , id(id_)
-    {}
+    {
+        previous = nullptr;
+        // Essentially sets distance to infinity
+        distance_to_start = numeric_limits<int>::max();  
+    }
 
 	/**
 	 * @brief Calculates distance from this node to another node
@@ -100,11 +116,7 @@ struct Node
      */
     Node * previous;
     
-    /**
-     * @brief For shortest path computation. Stores the distance from each
-     * 		  node to the start node at each point in computation
-     */
-    double distance_to_start;
+    
     
     /**
      * @brief For Kruskal's algorithm. Stores which of the Kruskal trees
@@ -168,10 +180,22 @@ struct Graph
     vector<Node *> nodes;
     
     /**
+     * @brief An unordered map of the nodes in the graph, seachable with
+     * the node identifier
+     */
+     unordered_map<int, Node*> node_map;
+    
+    /**
      * @brief Edges within a graph
      */
     vector<Edge *> edges;
     
+    /**
+     * @brief An unordered map of edges in the graph, searchable given
+     * a tuple of two nodes. 
+     */
+     unordered_map< int*, Edge*> edge_map;
+     
     /**
      * @brief Initializes the struct
      *
@@ -181,5 +205,27 @@ struct Graph
     Graph(vector<Node *> nodes_, vector<Edge *> edges_)
         : nodes(nodes_)
         , edges(edges_)
-    {}
+    {
+        // Initialize Edge Map
+        vector<Edge*>::iterator i;
+        for (i = edges.begin(); i != edges.end(); i++)
+        {
+            Edge * e = *i;
+            Node * n1 = e->a;
+            Node * n2 = e->b;
+            int * arr = new int[2];
+            arr[0] = n1->id;
+            arr[1] = n2->id;
+            edge_map[arr] = e;
+        }
+        // Initialize Node Map
+        vector<Node*>::iterator j;
+        for (j = nodes.begin(); j != nodes.end(); j++)
+        {
+            Node * n = *j;
+            int identifier = n->id;
+            node_map[identifier] = n;
+        }
+    }
+    
 };

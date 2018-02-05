@@ -20,10 +20,10 @@
 #include "GraphApp.hpp"
 #include "structs.hpp"
 
-using namespace std;
 
 /** STUDENT IMPLEMENTED FUNCTIONS */
 void buildMSTPrim(Graph g, GraphApp *app);
+Edge* minWeight(vector<Edge*> v);
 
 void buildMSTKruskal(Graph g, GraphApp *app);
 
@@ -33,9 +33,10 @@ void findShortestPath(int start, int end, Graph g, GraphApp * app);
 void drawEdge(Node *pt1, Node *pt2, vector<Edge *> edges, GraphApp *app, 
     bool mst);
 
-/** Vector to store Nodes both on and not on MST for Prim's Algorithm */
-vector<Node *> onMST;
-vector<Node *> notOnMST;
+/** Unordered map to store Nodes both on and not on MST for Prim's Algorithm */
+unordered_map<int, Node *> onMST;
+
+unordered_map<int, Node *> visited;
 
 /**
  * @brief Struct representing an edge between two trees during computation of

@@ -45,13 +45,12 @@
 
 #pragma once
 
-#include <SDL.h>
+#include <SDL.h> 
 #include <SDL_gfxPrimitives.h>
 #include <vector>
 #include "structs.hpp"
 #include <tuple>
 
-using namespace std;
 
 #define SCREEN_WIDTH    (800)
 #define SCREEN_HEIGHT   (600)

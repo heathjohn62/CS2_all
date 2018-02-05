@@ -50,15 +50,90 @@
  * You can assume that the graph is completely connected. Also, we only use
  * existing edges for the MST.
  *
- * Add your outline here
- *
- *
+ * Outline:
+ * declare temp_edgy
+ * Add the first node in g.nodes to OnMST
+ * loop the following:
+     * If OnMST.size() == g.nodes.size(), break
+     * Load all edges in the graph that start with any node within onMST,
+     * and end with a node that isn't in onMST, onto temp_edgy
+     * Find the edge in this vector with the minimum weight. 
+     * load the node at the end of this edge to OnMST
+     * draw the edge
+     * clear temp_edgy
  */
-void buildMSTPrim(Graph g, GraphApp *app) {
-    onMST.erase(onMST.begin(), onMST.end());
-    notOnMST.erase(notOnMST.begin(), notOnMST.end());
+void buildMSTPrim(Graph g, GraphApp *app) 
+{
+    onMST.erase(onMST.begin(), onMST.end()); // works for unordered maps too!
+    
+    vector<Edge*> temp_edgy = vector<Edge*>();
+    // Adding the first {id, node} pair to onMST
+    onMST[(*(g.nodes.begin()))->id] = *(g.nodes.begin()); 
+    while(true)
+    {
+        if (onMST.size() == g.nodes.size())
+        {
+            break; // We have added every node in the tree!
+        }
+        // Now I will add all valid edges to temp_edgy
+        vector<Edge*>::iterator i;
+        for (i = g.edges.begin(); i != g.edges.end(); i++)
+        {
+            //IF: edge starts within MST   AND  edge ends not within MST
+            if ((onMST.count(((*i)->a->id)) == 1 && 
+            0 == onMST.count(((*i)->b->id))) || 
+            (onMST.count(((*i)->b->id)) == 1 && 
+            0 == onMST.count(((*i)->a->id))))
+            {
+                temp_edgy.push_back(*i);
+            }
+        }
+        // Get min
+        Edge * edgy = minWeight(temp_edgy); 
+        // Load min onto MST
+        if (onMST.count(edgy->a->id) == 1)
+        {
+            onMST[(edgy->b)->id] = edgy->b;
+        }
+        else
+        { 
+            onMST[(edgy->a)->id] = edgy->a;
+        }
+        //Draw edge
+        drawEdge(edgy->a, edgy->b, g.edges, app, 1);
+        // Clear the temporary vector
+        temp_edgy.erase(temp_edgy.begin(), temp_edgy.end());
+        
+    }
+    // clean up the edge_map
+    auto iter = g.edge_map.begin();
+    while (iter != g.edge_map.end())
+    {
+        int * arr = iter->first;
+        delete[] arr;
+        iter++;
+    }
+    
+}
 
-    // Write your code here
+/**
+ * @brief Helper funtion that accepts a vector of edges and returns a
+ * pointer to the edge with the minimum weight. 
+ * @param v Vector of edge pointers
+ * @return pointer to min weight edge
+ */
+Edge* minWeight(vector<Edge*> v)
+{
+    vector<Edge*>::iterator iter;
+    Edge * min = *(v.begin()); // sets min to the first edge
+    for (iter = v.begin(); iter != v.end(); iter++)
+    {
+        if (min->weight > (**iter).weight) // if min has a greater weight
+        {
+            min = *iter; // switch min
+        }
+    }
+    return min;
 }
 
 /**
@@ -101,8 +176,10 @@ void buildMSTPrim(Graph g, GraphApp *app) {
  *
  *
  */
-void buildMSTKruskal(Graph g, GraphApp *app) {
-    auto compare_func = [](KruskalEdge *a, KruskalEdge *b) {
+void buildMSTKruskal(Graph g, GraphApp *app) 
+{
+    auto compare_func = [](KruskalEdge *a, KruskalEdge *b) 
+    {
         return (a->weight > b->weight);
     };
     std::priority_queue<KruskalEdge *, std::vector<KruskalEdge *>,
@@ -144,12 +221,108 @@ void buildMSTKruskal(Graph g, GraphApp *app) {
  *				to the MST, you can use the provided drawEdge function in
  *				GraphAlgorithms.cpp
  *
- * Add your outline here
- *
- *
+ * 
+ * set current_node to start
+ * Loop:
+     * if current node = end
+     *      break
+     * Add the current node to an unordered map of visited nodes
+     * Check all the edges in the graph, and add the edges that start on the
+     * current node and end on a unvisited node to a new vector temp_edgy
+     * For each vector:
+     *      if the distance to start of the current node, plus the edge weight,
+     *      is less than the distance to start of the node at the end of the 
+     *      edge, change the distance to start, and update the previous node
+     * Find the min weighted edge in temp_edgy
+     * set the current node to the node at the end of this edge 
+ * while current.previous != nullptr:
+ *      draw the edge between the current and the previous nodes
+ *      current = previous
  */
-void findShortestPath(int start, int end, Graph g, GraphApp *app) {
-    // Write code here
+void findShortestPath(int start, int end, Graph g, GraphApp *app) 
+{
+    visited.erase(visited.begin(), visited.end()); // works for unordered maps too!
+    Node * current = g.nodes[start];
+    current->distance_to_start = 0;
+    while (true)
+    {
+        // Update visited map
+        visited[current->id] = current; 
+        // Vector of relevant edges 
+        vector<Edge*> temp_edgy = vector<Edge*>();
+        vector<Edge*>::iterator i;
+        for (i = g.edges.begin(); i != g.edges.end(); i++)
+        {
+            //IF: edge starts with current   AND  edge ends with an unvisited node
+            if (((current->id ==(*i)->a->id) && 
+             0 == visited.count((*i)->b->id)) || 
+               ((current->id == (*i)->b->id) && 
+             0 == visited.count((*i)->a->id)))
+            {
+                temp_edgy.push_back(*i); // this is a relevant node
+            }
+        }
+        // loop through all relevant nodes 
+        vector<Edge*>::iterator j;
+        for (j = temp_edgy.begin(); j != temp_edgy.end(); j++)
+        {
+            Node * tail_node = nullptr;
+            if ((*j)->a->id == current->id)
+            {
+                tail_node = (*j)->b;
+            }
+            else
+            {
+                tail_node = (*j)->a;
+            }
+            if (tail_node->distance_to_start > 
+                current->distance_to_start + (*j)->weight)
+            {
+                tail_node->previous = current;
+                tail_node->distance_to_start = 
+                  current->distance_to_start + (*j)->weight;
+            }
+        }
+        if (current->id == g.nodes[end]->id)
+        {
+            break; // exits loop if end is found
+        }
+        // If the node cannot be extended from, we will try to extend from
+        // The previous node, having already visited this one. 
+        if (temp_edgy.size() == 0)
+        {
+            current = current->previous;
+        }
+        else // Normal Case
+        {
+            // Get min
+            Edge * edgy = minWeight(temp_edgy);
+            // Set current to min
+            if (edgy->a->id == current->id)
+            {
+                current = edgy->b;
+            }
+            else
+            {
+                current = edgy->a;
+            }
+            // clear relevant edges
+            temp_edgy.erase(temp_edgy.begin(), temp_edgy.end());
+        }
+    }
+    while (current->previous != nullptr)
+    {
+        drawEdge(current, current->previous, g.edges, app, 0);
+        current = current->previous;
+    }
+    // clean up the edge_map
+    auto iter = g.edge_map.begin();
+    while (iter != g.edge_map.end())
+    {
+        int * arr = iter->first;
+        delete[] arr;
+        iter++;
+    }
 }
 
 /**
@@ -166,10 +339,13 @@ void findShortestPath(int start, int end, Graph g, GraphApp *app) {
  **/
 
 void drawEdge(Node *pt1, Node *pt2, vector<Edge *> edges, GraphApp *app,
-              bool mst) {
-    for (unsigned int i = 0; i < edges.size(); i++) {
+              bool mst) 
+{
+    for (unsigned int i = 0; i < edges.size(); i++) 
+    {
         if ((edges[i]->a == pt1 && edges[i]->b == pt2) ||
-            (edges[i]->a == pt2 && edges[i]->b == pt1)) {
+            (edges[i]->a == pt2 && edges[i]->b == pt1)) 
+        {
             if (mst)
                 app->add_to_mst(edges[i]);
             else

@@ -117,7 +117,7 @@ public:
    */
   void push_back(char *string)
   {
-    Node *node = new Node(string);
+    Node *node = new Node(string); 
     if (head == NULL) {
       head = node;
       tail = node;
@@ -138,8 +138,10 @@ public:
       return NULL;
     }
     Node *temp = head;
+    char *temp_str = head->string;
     head = head->next;
-    return temp->string;
+    delete temp; // Need a delete if a node is removed!
+    return temp_str;
   }
 
 
@@ -176,6 +178,8 @@ int main()
 
     // Add the string to the Queue
     queue.push_back(string);
+    
+    // I need to delete the string when it is popped!
 
     // Read another line of input
     std::cin.getline(buffer, BUFFER_SIZE);
@@ -185,8 +189,16 @@ int main()
   while (!queue.is_empty() && count < NUM_OUTPUT) {
     // Print the first few lines
     count++;
-    std::cout << "String #" << count << ": " << queue.pop_front() << std::endl;
+    char *string = queue.pop_front();
+    std::cout << "String #" << count << ": " << string << std::endl;
+    delete[] string; // string is deleted
   }
+  // Still need cleanup code if number of lines > NUM_OUTPUT
+  while (!queue.is_empty()) {
+    char *string = queue.pop_front();
+    delete[] string; // string is deleted
+  }
+  
 
   return 0;
 }

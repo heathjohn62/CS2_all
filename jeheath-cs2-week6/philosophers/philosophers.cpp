@@ -49,6 +49,7 @@
 #include <string.h>
 #include <ncurses.h>
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include <mutex>
 #include "semaphore.hpp"
@@ -56,27 +57,27 @@
 /**
  * @brief Number of philosophers; also number of forks available.
  */
-#define NUMPHILS    (5)
+#define NUMPHILS    (5) // original is 5
 
 /**
  * @brief How long a philosopher needs to pick up a fork (in us).
  */
-#define PICKUPTIME  (1000)
+#define PICKUPTIME  (1000) // original is 1000
 
 /**
  * @brief How long a philosopher needs to drop a fork (in us).
  */
-#define DROPTIME    (1000)
+#define DROPTIME    (1000) // original is 1000
 
 /**
  * @brief How long a philosopher eats when he has both forks (in us).
  */
-#define EATTIME     (1000000)
+#define EATTIME     (1000000)// original is 1000000
 
 /**
  * @brief How long to wait between display refreshes (in us).
  */
-#define DISPLAYINTERVAL (16700)
+#define DISPLAYINTERVAL (16700) // original is 16700
 
 #define LEFT        (0)
 #define RIGHT       (1)
@@ -117,6 +118,7 @@ public:
     Fork()
     {
         dirty = true;
+        m = new std::mutex();
     }
 
     /**
@@ -124,7 +126,7 @@ public:
      */
     ~Fork()
     {
-
+        delete m;
     }
 
     /**
@@ -134,7 +136,7 @@ public:
      */
     void pick_up()
     {
-
+        m->lock();
     }
 
     /**
@@ -144,7 +146,7 @@ public:
      */
     void release()
     {
-
+        m->unlock();
     }
 
     /**
@@ -173,6 +175,11 @@ private:
      * @brief Describes the current state of the fork.
      */
     bool dirty;
+    
+    /**
+     * @brief Mutex that can block use of the fork
+     */
+     std::mutex * m;
 };
 
 
@@ -200,7 +207,7 @@ public:
 
     ~Philosopher()
     {
-
+        std::cout << times_eaten << std::endl; // Used to judge equality
     }
 
     void pickup_fork(int which)
@@ -227,8 +234,14 @@ public:
 
         fork[LEFT]->set_dirty(true);
         fork[RIGHT]->set_dirty(true);
+        times_eaten++;
     }
-
+    
+    int get_times_eaten()
+    {
+        return times_eaten;
+    }
+    
     bool has_fork(int which)
     {
         return hasfork[which];
@@ -253,6 +266,7 @@ protected:
     Fork *fork[2];
     bool hasfork[2], eating;
     int id;
+    int times_eaten; // Used to determine if some philosophers are starving
 };
 
 
@@ -293,11 +307,36 @@ void greedy(Philosopher *phil)
 
 /**
  * @attention Student-implemented function
+ * @param philosopher that wants to eat
+ * @param table Sephamore denoting the number of empty seats at the 
+ * table. Four philosophers may sit at a time. 
+ * 
+ * I was curious whether this program would lead some philosophers to eat
+ * more than others. The answer is no. I edited some of the core functions 
+ * so that the final eating count for each philosopher is printed to 
+ * "log.txt" in this directory. After speeding up the philosophers to 
+ * get swifter data, these meals were printed to log in one minute. 
+0: 11068
+1: 11595
+2: 11148
+3: 11215
+4: 11811
  */
-void waiter(Philosopher *p)
+void waiter(Philosopher * p, Semaphore * table)
 {
-    // TODO Fill in this function with your waiter solution to the dining
-    //      philosophers problem.
+    while (true)
+    {
+        table->dec(); //sit down
+        p->pickup_fork(LEFT);
+        p->pickup_fork(RIGHT);
+
+        p->eat();
+
+        p->release_fork(RIGHT);
+        p->release_fork(LEFT);
+        table->inc(); //stand up
+    }
+    
 }
 
 
@@ -379,10 +418,18 @@ void update_ascii_display()
             else
                 printw("       ");
         }
-
-        printw("\n\n* = dirty fork\n");
-        printw("Press Control-C to quit.\n");
-
+        
+        // How many times each philosopher got to eat is printed to a log file
+        std::ofstream myfile;
+        myfile.open("log.txt");
+        for (int i = 0; i < NUMPHILS; i++)
+        {
+            Philosopher *p = phils[i];
+            myfile << i << ": " << p->get_times_eaten() << "\n";
+        }
+        myfile.close();
+        
+        
         /* Static delay. */
         refresh();
         usleep(DISPLAYINTERVAL);
@@ -399,59 +446,58 @@ int main(int argc, char *argv[])
     {
         std::cout << USAGE << std::endl;
         return -1;
+    }    
+    if (strcmp(argv[1], "-g") == 0)
+    {
+        /* Greedy solution (guaranteed deadlock). */
+        for (int i = 0; i < NUMPHILS; i++)
+        {
+            int j = (i + 1) % NUMPHILS;
+            phils[i] = new Philosopher(&forks[i], &forks[j], i);
+            t[i] = new std::thread(greedy, phils[i]);
+        }
+    }
+    else if (strcmp(argv[1], "-w") == 0)
+    {
+        /* Waiter solution. */
+        Semaphore * table = new Semaphore(4);
+        for (int i = 0; i < NUMPHILS; i++)
+        {
+            int j = (i + 1) % NUMPHILS;
+            phils[i] = new Philosopher(&forks[i], &forks[j], i);
+            t[i] = new std::thread(waiter, phils[i], table);
+        }
+    }
+    else if (strcmp(argv[1], "-t") == 0)
+    {
+        /* Talking philosophers (Chandy solution). */
+        for (int i = 0; i < NUMPHILS; i++)
+        {
+            int j = (i + 1) % NUMPHILS;
+            phils[i] = new TalkingPhilosopher(&forks[i], &forks[j], i);
+
+            TalkingPhilosopher *phil = (TalkingPhilosopher *) phils[i];
+
+            if (i < IDLEFT(i))
+            {
+                phil->pickup_fork(LEFT);
+            }
+
+            if (i < IDRIGHT(i))
+            {
+                phil->pickup_fork(RIGHT);
+            }
+        }
+
+        for (int i = 0; i < NUMPHILS; i++)
+            t[i] = new std::thread(talking, phils[i]);
     }
     else
     {
-        if (strcmp(argv[1], "-g") == 0)
-        {
-            /* Greedy solution (guaranteed deadlock). */
-            for (int i = 0; i < NUMPHILS; i++)
-            {
-                int j = (i + 1) % NUMPHILS;
-                phils[i] = new Philosopher(&forks[i], &forks[j], i);
-                t[i] = new std::thread(greedy, phils[i]);
-            }
-        }
-        else if (strcmp(argv[1], "-w") == 0)
-        {
-            /* Waiter solution. */
-            for (int i = 0; i < NUMPHILS; i++)
-            {
-                int j = (i + 1) % NUMPHILS;
-                phils[i] = new Philosopher(&forks[i], &forks[j], i);
-                t[i] = new std::thread(waiter, phils[i]);
-            }
-        }
-        else if (strcmp(argv[1], "-t") == 0)
-        {
-            /* Talking philosophers (Chandy solution). */
-            for (int i = 0; i < NUMPHILS; i++)
-            {
-                int j = (i + 1) % NUMPHILS;
-                phils[i] = new TalkingPhilosopher(&forks[i], &forks[j], i);
-
-                TalkingPhilosopher *phil = (TalkingPhilosopher *) phils[i];
-
-                if (i < IDLEFT(i))
-                {
-                    phil->pickup_fork(LEFT);
-                }
-
-                if (i < IDRIGHT(i))
-                {
-                    phil->pickup_fork(RIGHT);
-                }
-            }
-
-            for (int i = 0; i < NUMPHILS; i++)
-                t[i] = new std::thread(talking, phils[i]);
-        }
-        else
-        {
-            std::cout << USAGE << std::endl;
-            return -1;
-        }
+        std::cout << USAGE << std::endl;
+        return -1;
     }
+    
 
     /* Enter ncurses mode and begin an ASCII update loop. */
     initscr();
@@ -463,11 +509,12 @@ int main(int argc, char *argv[])
     {
         t[i]->join();
     }
-
+    
     /* End ncurses mode. */
     endwin();
 
     // Clean up memory.
+    
     delete update;
     for (int i = 0; i < NUMPHILS; i++)
     {

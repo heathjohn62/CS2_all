@@ -207,7 +207,7 @@ public:
 
     ~Philosopher()
     {
-        std::cout << times_eaten << std::endl; // Used to judge equality
+        
     }
 
     void pickup_fork(int which)
@@ -261,14 +261,59 @@ public:
     {
         return fork[which];
     }
-
+    
+    /**
+      * @brief Recieves a request for the philosopher's right fork if
+      * the parameter is true, and the left fork otherwise.
+      */
+     void recieve_request(bool right)
+     {
+         if (right)
+         {
+             r_f_requested = true;
+         }
+         else
+         {
+             l_f_requested = true;
+         }
+     }
+     
+     /**
+      * @brief
+      * Returns whether one of their forks has been requested (true for
+      * right fork, false for left fork)
+      */
+      bool requested (bool right)
+      {
+          if (right)
+          {
+              return r_f_requested;
+          }
+          else
+          {
+              return l_f_requested;
+          }
+      }
+      
 protected:
+    /**
+     * @brief These variables keep track of whether one of their forks 
+     * has been requested. 
+     */
+    bool l_f_requested = false;
+    bool r_f_requested = false;
+
     Fork *fork[2];
     bool hasfork[2], eating;
     int id;
     int times_eaten; // Used to determine if some philosophers are starving
 };
 
+/**
+ * @brief Array of all philosophers in the system. This can be used
+ * by any philosophers to talk to others (Chandy solution).
+ */
+Philosopher *phils[NUMPHILS];
 
 class TalkingPhilosopher : public Philosopher
 {
@@ -277,14 +322,50 @@ public:
     {
 
     }
+    
+    /**
+     * @brief Sends their fork to the philosopher on their right if the
+     * parameter is true, and to the philosopher on their left otherwise.
+     */
+    void send_fork(bool right)
+    {
+        if (right)
+        {
+            fork[RIGHT]->set_dirty(false);
+            release_fork(RIGHT);
+            r_f_requested = false;
+            phils[(id + 1) % NUMPHILS]->pickup_fork(LEFT);
+        }
+        else
+        {
+            fork[LEFT]->set_dirty(false);
+            release_fork(LEFT);
+            l_f_requested = false;
+            phils[(id + NUMPHILS - 1) % NUMPHILS]->pickup_fork(RIGHT);
+        }
+    }
+    
+    /**
+     * @brief Requests a fork from their right neighbor if parameter is 
+     * true, left neighbor otherwise. 
+     */
+     void request_fork(bool right)
+     {
+         if (right)
+         {
+             // The philosopher on their right will recieve a request
+             // for their left fork.
+             phils[(id + 1) % NUMPHILS]->recieve_request(false);
+         }
+         else
+         {
+             // The philosopher on their left will recieve a request for
+             // their right fork. 
+             phils[(id + NUMPHILS - 1) % NUMPHILS]->recieve_request(true);
+         }
+     }
 };
 
-
-/**
- * @brief Array of all philosophers in the system. This can be used
- * by any philosophers to talk to others (Chandy solution).
- */
-Philosopher *phils[NUMPHILS];
 
 
 /**
@@ -342,11 +423,53 @@ void waiter(Philosopher * p, Semaphore * table)
 
 /**
  * @attention Student-implemented function
+ * 
+ * @brief Implementation of the talking philosopher's algorithm. 
+ * 
+ * This one is much less sporadic than the waiter algorithm, and is
+ * completely even across the philosophers. After running it at high 
+ * speeds for a few minutes, this was the result in the log:
+ * 
+0: 5973
+1: 5972
+2: 5972
+3: 5973
+4: 5973
+
  */
 void talking(Philosopher *p)
 {
-    // TODO Fill in this function with your implementation of the Chandy-Misra
-    //      solution.
+    TalkingPhilosopher * phil = (TalkingPhilosopher *)p;
+    while (true)
+    {
+        // If phil doesnt have a fork, they will request it and then take it
+        if (!phil->has_fork(LEFT))
+        {
+            phil->request_fork(false);
+        }
+        if (!phil->has_fork(RIGHT))
+        {
+            phil->request_fork(true);
+        }
+        
+        if (phil->has_fork(RIGHT) && phil->has_fork(LEFT))
+        {
+            phil->eat();
+        }
+        
+        // If the fork has been requested and it is dirty, send it.
+        if (phil->requested(true) && phil->has_fork(RIGHT) &&
+            phil->get_fork(RIGHT)->is_dirty())
+        {
+            phil->send_fork(true);
+        }
+        if (phil->requested(false) && phil->has_fork(LEFT) &&
+        phil->get_fork(LEFT)->is_dirty())
+        {
+            phil->send_fork(false);
+        }
+        
+    }
 }
 
 

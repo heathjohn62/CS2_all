@@ -51,5 +51,8 @@ either expressed or implied, of the California Institute of Technology.
 #include "NetworkWrapper.hpp"
 
 /* TODO: declare any extra classes here */
+void hookup(CS2Net::Socket sock, std::string hostname, uint16_t port);
+void send_message(CS2Net::Socket * sock, const char * msg);
+std::string* recieve_message(CS2Net::Socket * sock);
 
 #endif

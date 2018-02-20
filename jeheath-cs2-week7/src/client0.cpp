@@ -40,20 +40,102 @@ either expressed or implied, of the California Institute of Technology.
 
 #include "client0.hpp"
 
+/**
+ * @brief helper function that connects a socket to a host
+ * 
+ * @param sock socket to connect
+ * @param hostname Host to connect to
+ * @param port Port number to connect to
+ */
+void hookup(CS2Net::Socket * sock, std::string hostname, uint16_t port)
+{
+    int ret = sock->Connect(&hostname, port);
+    if(ret < 0)
+    {
+        // something terrifying happened x_X
+        if(ret == -1)
+        {
+            ERROR("connect error: %s", strerror(errno));
+        }
+        else if(ret == -3)
+        {
+            ERROR("connect error: %s", gai_strerror(errno));
+        }
+        else
+        {
+            ERROR("this error should never occur");
+        }
+    }
+}
+
+
+/**
+ * @brief helper function that sends a message to a host
+ * 
+ * @param sock socket to connect
+ * @param msg Message to send
+ */
+void send_message(CS2Net::Socket * sock, const char * msg)
+{
+    std::string to_send(msg);
+    int ret = sock->Send(&to_send);
+    if(ret < 0)
+    {
+        // bad stuff happened
+        if(ret == -1)
+        {
+            ERROR("send error: %s", strerror(errno));
+        }
+        else
+        {
+            ERROR("this error should never occur");
+        }
+    }
+}
+
+
+/**
+ * @brief Helper function to recieve a message from the host
+ * 
+ * @param sock The socket that is listening for data
+ * 
+ * @returns A pointer to a string that is the reply
+ */
+std::string* recieve_message(CS2Net::Socket * sock)
+{
+    std::string * incoming = sock->Recv(1024, false);
+    // The Recv function returns dynamically allocated memory!
+    
+    if(incoming == nullptr)
+    {
+        // bad stuff happened
+        ERROR("recv error: %s", strerror(errno));
+    }
+    return incoming;
+}
+
+
+/**
+ * @brief This should be a simple client that connects to the given 
+ * server, sends a message of your choice, recvs and prints the response,
+ * and disconnects.
+*/
 int main(int argc, char ** argv)
 {
-
     REQUIRE(argc == 3, "usage: %s hostname port", argv[0]);
-
-    /* TODO: write this code.
-     *
-     * This should be a simple client that connects to the given server,
-     * sends a message of your choice,
-     * recvs and prints the response,
-     * and disconnects.
-     *
-     **/
-
+    
+    CS2Net::Socket sock;
+    std::string hostname(argv[1]);
+    uint16_t port = atoi(argv[2]); // char* to int conversion
+    
+    hookup(&sock, hostname, port);
+    // we connected yay
+    
+    send_message(&sock, "Hello halo at caltech.edu. Are you an angel?");
+    // we sent some data yay
+    
+    std::string * reply = recieve_message(&sock);
+    std::cout << *reply << std::endl;
+    delete reply;
     return 0;
-
 }

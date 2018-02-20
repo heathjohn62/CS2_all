@@ -46,11 +46,13 @@ either expressed or implied, of the California Institute of Technology.
 #include <cstring>
 #include <string>
 #include <list>
+#include <iostream>
 
 #include <gtk/gtk.h>
 
 #include "NetworkWrapper.hpp"
 #include "CS2ChatProtocol.hpp"
+
 
 /* TODO: declare any extra classes here */
 
@@ -68,8 +70,18 @@ either expressed or implied, of the California Institute of Technology.
  */
 std::string EncodeNetworkMessage(MESSAGE_TYPE type, std::string * payload)
 {
-    // TODO: fix this.
-    return std::string();
+    std::string encoded = std::string();
+    encoded += type;
+    unsigned short int s = payload->length();
+    unsigned char first = s % 256;
+    unsigned char second = s / 256;
+    encoded += first;
+    encoded += second;
+    for(int i = 0; i < s; i++)
+    {
+        encoded += (*payload)[i];
+    }
+    return encoded;
 }
 
 #endif

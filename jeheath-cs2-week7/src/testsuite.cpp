@@ -41,6 +41,7 @@ either expressed or implied, of the California Institute of Technology.
 #include "client2.hpp"
 #include <stdio.h>
 #include <string>
+#include <iostream>
 
 int main()
 {
@@ -55,6 +56,7 @@ int main()
     // The message contents is of length 4, 4 in little endian format is
     // 04 00. Additionally, 0x00 is the tag for MSG_SERVER_MESSAGE.
     std::string building_result = {0x00, 0x04, 0x00, 'f', 'o', 'u', 'r'};
+    
     if (result != building_result)
     {
       printf("Incorrect server message encoding!!!\n");

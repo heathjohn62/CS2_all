@@ -100,13 +100,27 @@ static int DoConnect(const char * hostname, uint16_t port, const char * username
     guint ctx = gtk_statusbar_get_context_id(status_bar, "none");
     char status_str[1024];
 
-    /* TODO: Fix this function and make it useful. */
-
-    snprintf(status_str, 1024, "Connecting not implemented");
+    int ret = sock->Connect(&__hostname, port);
+    if(ret < 0)
+    {
+        return -1;
+    }
+    std::string u_name = std::string(username);
+    std::string * u_n = &u_name;
+    SendMessage(MSG_AUTH_USERNAME, u_n);
+    
+    PollSocket(nullptr);
+    
+    if (!connected)
+    {
+        return -1;
+    }
+    
+    snprintf(status_str, 1024, "Connected");
     gtk_statusbar_pop(status_bar, ctx);
     gtk_statusbar_push(status_bar, ctx, status_str);
 
-    return -1;
+    return 0;
 }
 
 /**
@@ -136,7 +150,41 @@ static void DoDisconnect()
  */
 static gboolean PollSocket(gpointer data)
 {
-    /* TODO: Fix this function so it does something useful. */
+    // Time to create the poll vector
+    std::vector<CS2Net::PollFD> poll_vec;
+    CS2Net::PollFD poll = CS2Net::PollFD(sock, 0);
+    poll_vec.push_back(poll);
+    poll_vec[0].SetRead(true);
+    
+    // now do the poll (10 ms timeout)
+    int poll_err = CS2Net::Poll(&poll_vec, 10);
+    REQUIRE(poll_err >= 0, "error on poll!?");
+
+    // is there a hangup or error?
+    if(poll_vec[0].HasHangup() || poll_vec[0].HasError())
+    {
+        // o noes there's a hangup and/or error
+        ERROR("Poll hangup error");
+    }
+    // did we get anything to read?
+    if(poll_vec[0].CanRead())
+    {
+        std::string * incoming = sock->Recv(1024, false);
+        // The Recv function returns dynamically allocated memory!
+        if(incoming == nullptr)
+        {
+            ERROR("recv error: %s", strerror(errno));
+        }
+        else if ((*incoming)[0] == MSG_AUTH_OK)
+        {
+            connected = true;
+        }
+        
+    }
+    if (connected)
+    {
+        return true;
+    }
     return false;
 }
 
@@ -159,9 +207,70 @@ static gboolean PollSocket(gpointer data)
  */
 static int SendMessage(MESSAGE_TYPE type, std::string * payload)
 {
-    /* TODO: make this function useful. */
-    ERROR("sending messages is not implemented yet");
-    return -2;
+    std::string pre_send = std::string();
+    if (type == MSG_SERVER_MESSAGE)
+    {
+        if ((*payload).length() == 0)
+        {
+            return -2;
+        }
+        pre_send += "Server Message: ";
+    }
+    else if (type == MSG_AUTH_USERNAME)
+    {
+        if ((*payload).length() == 0 || 
+            (*payload).find("\n") != std::string::npos)
+        {
+            return -2;
+        }
+    }
+    else if (type == MSG_AUTH_OK)
+    {
+        if ((*payload).length() != 0)
+        {
+            return -2;
+        }
+    }
+    else if (type == MSG_AUTH_ERROR)
+    {
+        if ((*payload).length() == 0)
+        {
+            return -2;
+        }
+    }
+    else if (type == MSG_CHATMSG)
+    {
+        if ((*payload).length() == 0)
+        {
+            return -2;
+        }
+    }
+    else if (type == MSG_USERLIST)
+    {
+        // Do nothing
+    }
+    else if (type == MSG_GENERAL_ERROR)
+    {
+        if ((*payload).length() == 0)
+        {
+            return -2;
+        }
+        pre_send += "Server Error: ";
+    }
+    else
+    {
+        return -2;
+    }
+    
+    pre_send += *payload;
+    std::string to_send = EncodeNetworkMessage(type, &pre_send);
+    int ret = sock->Send(&to_send);
+    if(ret < 0)
+    {
+        // bad stuff happened
+        return -1;
+    }
+    return to_send.length();
 }
 
 /**
@@ -176,14 +285,10 @@ static void ProcessChatLine(GtkWidget * w, gpointer data)
     // some default behavior goes here
     GtkEntry* __w = (GtkEntry*)w;
     const char * txt = gtk_entry_get_text(__w);
-
-    /*
-     * TODO: Add some code here to react to a processed chat line.
-     * The chat box will always be used to send chat messages only,
-     * so you don't have to worry about trying to do lots of parsing.
-     * Just create a MSG_CHATMSG message and send it over
-     * the open socket.
-     */
+    std::string chat_str = std::string(txt);
+    std::string * chat = &chat_str;
+    
+    SendMessage(MSG_CHATMSG, chat);
 
     // The default behavior (for demonstration) is to print the chat line to the
     // chat buffer exactly as entered.

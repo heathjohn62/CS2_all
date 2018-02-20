@@ -86,7 +86,22 @@ obj/testsuite.o: src/testsuite.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/4.9/bits/hash_bytes.h \
  /usr/include/c++/4.9/bits/basic_string.tcc /usr/include/c++/4.9/list \
  /usr/include/c++/4.9/bits/stl_list.h /usr/include/c++/4.9/bits/list.tcc \
- /usr/include/gtk-2.0/gtk/gtk.h /usr/include/gtk-2.0/gdk/gdk.h \
+ /usr/include/c++/4.9/iostream /usr/include/c++/4.9/ostream \
+ /usr/include/c++/4.9/ios /usr/include/c++/4.9/bits/ios_base.h \
+ /usr/include/c++/4.9/bits/locale_classes.h \
+ /usr/include/c++/4.9/bits/locale_classes.tcc \
+ /usr/include/c++/4.9/streambuf /usr/include/c++/4.9/bits/streambuf.tcc \
+ /usr/include/c++/4.9/bits/basic_ios.h \
+ /usr/include/c++/4.9/bits/locale_facets.h /usr/include/c++/4.9/cwctype \
+ /usr/include/wctype.h \
+ /usr/include/i386-linux-gnu/c++/4.9/bits/ctype_base.h \
+ /usr/include/c++/4.9/bits/streambuf_iterator.h \
+ /usr/include/i386-linux-gnu/c++/4.9/bits/ctype_inline.h \
+ /usr/include/c++/4.9/bits/locale_facets.tcc \
+ /usr/include/c++/4.9/bits/basic_ios.tcc \
+ /usr/include/c++/4.9/bits/ostream.tcc /usr/include/c++/4.9/istream \
+ /usr/include/c++/4.9/bits/istream.tcc /usr/include/gtk-2.0/gtk/gtk.h \
+ /usr/include/gtk-2.0/gdk/gdk.h \
  /usr/include/gtk-2.0/gdk/gdkapplaunchcontext.h \
  /usr/include/glib-2.0/gio/gio.h /usr/include/glib-2.0/gio/giotypes.h \
  /usr/include/glib-2.0/gio/gioenums.h /usr/include/glib-2.0/glib-object.h \

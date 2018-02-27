@@ -63,9 +63,61 @@ float naive_sum(vector<float> vec)
 	return sum;
 }
 
+/**
+ * @brief Re-implementation of naive sum that sums over a specified interval
+ */
+float naive_sum_2(vector<float> vec, unsigned int start, unsigned int end)
+{
+    float sum = 0;
+    for (unsigned int i = start; i < end; i++)
+    {
+        sum += vec[i];
+    }
+    return sum;
+}
+    
 
-// TODO: Implement stable summation here, test it in main() below, and
-// show how much better a job you can do than a simple sum operation!
+/**
+ * @brief Sums the elements in the vector vec through the kahan summation
+ * method. 
+ * 
+ * @param vec The vector of floats whose elements are summed. 
+ * @returns the sum
+ * This was pretty copied verbatum from recitation slides. 
+ */
+float stable_sum(vector<float> vec)
+{
+    float sum = 0.0;
+    float comp = 0.0;
+    for (unsigned int i = 0; i < vec.size(); i++)
+    {
+        float y = vec[i] - comp;
+        float t = sum + y;
+        comp = (t - sum) - y;
+        sum = t;
+    }
+    return sum;
+}
+
+/**
+ * @brief Sums the elements in the vector vec via the pairwise summation
+ * method. 
+ * 
+ * @param vec The vector of floats whose elements are summed. 
+ * @returns the sum
+ */
+float pairwise_sum(vector<float> vec, 
+                   unsigned int start, 
+                   unsigned int end)
+{
+    if (end - start <= 100000000.)
+    {
+        return naive_sum_2(vec, start, end);
+    }
+    return pairwise_sum(vec, start, (end - start) / 2) 
+         + pairwise_sum(vec, (end - start) / 2, end);
+}
+
 
 
 int main()
@@ -75,8 +127,12 @@ int main()
 	vec.push_back(1.);
 
 	for (int i = 0; i < HUGE; i++)
+    {
 		vec.push_back(TINY);
-
+    }
 	// Try out our summation algorithms!
 	cout << "Result of naive summation: " << naive_sum(vec) << endl;
+    cout << "Result of stable summation: " << stable_sum(vec) << endl;
+    cout << "Result of pairwise summation: " 
+         << pairwise_sum(vec, 0, vec.size()) << endl;
 }

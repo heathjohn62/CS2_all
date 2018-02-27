@@ -44,7 +44,7 @@
  */
 
 #include "EulerIntegrator.hpp"
-
+#include <cmath>
 
 /**
  * @brief Solve a differential equation with the forward Euler method.
@@ -62,7 +62,16 @@
 void EulerIntegrator::forward_euler(double *x, double *y, double *vx,
     double *vy, double h)
 {
-    
+    // I need to record what the positions will be using the original
+    // velocities, before changing the velocities or positions
+    double x_temp = (*x) + h * (*vx);
+    double y_temp = (*y) + h * (*vy);
+    // Update velocities
+    *vx += h * -1 * (*x) / pow(((*x) * (*x) + (*y) * (*y)), 1.5);
+    *vy += h * -1 * (*y) / pow(((*x) * (*x) + (*y) * (*y)), 1.5);
+    // Update positions which were found with old velocity values
+    *x = x_temp;
+    *y = y_temp;
 }
 
 
@@ -82,7 +91,10 @@ void EulerIntegrator::forward_euler(double *x, double *y, double *vx,
 void EulerIntegrator::backward_euler(double *x, double *y, double *vx,
     double *vy, double h)
 {
-    
+    (*x) = ((*x) + h * (*vx)) / (1+ h*h);
+    (*y) = ((*y) + h * (*vy)) / (1+ h*h);
+    *vx += h * -1 * (*x);
+    *vy += h * -1 * (*y);
 }
 
 
@@ -102,5 +114,9 @@ void EulerIntegrator::backward_euler(double *x, double *y, double *vx,
 void EulerIntegrator::symplectic_euler(double *x, double *y, double *vx,
     double *vy, double h)
 {
-    
+    *vx += h * -1 * (*x) / pow(((*x) * (*x) + (*y) * (*y)), 1.5);
+    *vy += h * -1 * (*y) / pow(((*x) * (*x) + (*y) * (*y)), 1.5);
+    // Positions can now be calculated from new velocities
+    *x += h * (*vx);
+    *y += h * (*vy);
 }

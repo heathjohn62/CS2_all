@@ -65,7 +65,26 @@ using namespace std;
  */
 double Solver::bisection(double (*f)(double), double x1, double x2)
 {
-    return x1;
+    double root = (x2 + x1) / 2;
+    double precision = x2 - x1;
+    while (precision > PRECISION)
+    {
+        if (f(root) == 0)
+        {
+            return root;
+        }
+        if ((f(root) > 0 && f(x1) > 0) || (f(root) < 0 && f(x1) < 0))
+        {
+            x1 = root;
+        }
+        else if ((f(root) > 0 && f(x2) > 0) || (f(root) < 0 && f(x2) < 0))
+        {
+            x2 = root;
+        }
+        precision = x2 - x1;
+        root = (x2 + x1) / 2;
+    }
+    return root;
 }
 
 
@@ -83,5 +102,10 @@ double Solver::bisection(double (*f)(double), double x1, double x2)
 double Solver::newton_raphson(double (*f)(double), double (*fp)(double),
     double x1)
 {
-    return x1;
+    double precision = abs(f(x1) / fp(x1));
+    if (precision < TOLERANCE)
+    {
+        return x1; // recursive base case
+    }
+    return newton_raphson(f, fp, x1 - f(x1) / fp(x1));
 }
